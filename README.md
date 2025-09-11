@@ -4,9 +4,9 @@ SSUMC 8기 Web 스터디 A조
 
 ## 👥 Member
 
-|                 미정                  |                   미정                    |                  미정                  |                  미정                  |                 미정                  |
+|                 칠판                  |                   도비                    |                  프로이트                  |                  코코                  |                 리나                  |
 | :-----------------------------------: | :---------------------------------------: | :------------------------------------: | :------------------------------------: | :-----------------------------------: |
-| [이태건](https://github.com/taegeon2) | [김도현](https://github.com/rlaehgus4418) | [서주원](https://github.com/4sz5sz6sz) | [김예원](https://github.com/kimyw1018) | [김여원](https://github.com/YeoEunnn) |
+| [이태건](https://github.com/taegeon2) | [김도현](https://github.com/rlaehgus4418) | [서주원](https://github.com/4sz5sz6sz) | [김예원](https://github.com/kimyw1018) | [김여은](https://github.com/YeoEunnn) |
 
 <br/>
 
