@@ -1,0 +1,20 @@
+{
+    "name": "freud-typescript-workspace",
+    "version": "1.0.0",
+    "description": "TypeScript learning workspace",
+    "main": "dist/script.js",
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc --watch",
+        "dev": "tsc --watch"
+    },
+    "devDependencies": {
+        "typescript": "^5.9.2"
+    },
+    "keywords": [
+        "typescript",
+        "learning"
+    ],
+    "author": "freud",
+    "license": "MIT"
+}
