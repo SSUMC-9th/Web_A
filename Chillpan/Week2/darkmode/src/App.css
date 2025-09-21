@@ -1,0 +1,50 @@
+.dark {
+  background-color: black;
+  color: white;
+}
+
+.light {
+  background-color: white;
+  color: black;
+}
+
+/* 중앙 정렬  */
+.center-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.title {
+  font-size: 2.25rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+}
+
+.button {
+  cursor: pointer;
+}
+
+/*버튼, 단 dark*/
+.button.dark {
+  background-color: rgb(155, 155, 116);
+  color: white;
+}
+
+.button.dark:hover {
+  background-color: #b2bcca;
+}
+
+/*버튼, 단 light*/
+.button.light {
+  background-color: lightblue;
+}
+
+.button.light:hover {
+  background-color: rgb(130, 130, 150);
+}
