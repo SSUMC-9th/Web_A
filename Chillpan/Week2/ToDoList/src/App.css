@@ -1,0 +1,49 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.todo-container {
+  display: flex;
+  gap: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.todo-section {
+  width: 250px;
+  text-align: center;
+}
+
+.done-section {
+  width: 250px;
+  text-align: center;
+}
+
+.todo-item,
+.done-item {
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  margin: 3px 0;
+  background-color: rgb(243, 242, 246);
+  border-radius: 4px;
+}
+
+.todo-item button,
+.done-item button {
+  margin-left: auto;
+  background-color: green;
+  color: white;
+  border: none;
+  padding: 3px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.done-item button {
+  /* 후처리 */
+  background-color: red;
+}

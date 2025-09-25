@@ -1,0 +1,20 @@
+/*Editor.ccss*/
+
+.Editor {
+  display: flex;
+}
+
+.Editor input {
+  flex: 1; /*input이 flexbox 안에서 남은 공간을 꽉 채움*/
+  padding: 15px;
+  border: 1px solid rgb(220, 220, 220); /*직선 테두리를 생성*/
+  border-radius: 5px;
+}
+
+.Editor button {
+  cursor: pointer;
+  width: 100px; /* 버튼의 가로 길이를 80px로 고정 */
+  border: none; /* 버튼의 기본 테두리를 없앰 */
+
+  border-radius: 5px;
+}
