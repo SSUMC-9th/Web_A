@@ -1,6 +1,9 @@
+// App.tsx
+
 import "./App.css";
 import { useContext } from "react";
-import { ThemeProvider, ThemeContext, THEME } from "./context/ThemeProvider";
+import { ThemeProvider, ThemeContext } from "./context/ThemeProvider";
+import { THEME } from "./constants/theme";
 
 function App() {
   const context = useContext(ThemeContext);

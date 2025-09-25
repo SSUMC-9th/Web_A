@@ -1,12 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import type { PropsWithChildren } from "react";
-
-export const THEME = {
-  LIGHT: "LIGHT",
-  DARK: "DARK",
-} as const;
-
-type TTheme = (typeof THEME)[keyof typeof THEME];
+import { THEME, type TTheme } from "../constants/theme";
 
 interface IThemeContext {
   theme: TTheme; // 지금 테마
