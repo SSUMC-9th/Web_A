@@ -1,0 +1,84 @@
+body{
+    background-color: aliceblue;
+    text-align: center;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* 전체 높이 */
+}
+.container{
+    width: 400px;
+    padding: 10px;
+    border: 0px darkgray;
+    box-shadow: 0px 0px 10px lightgray;
+    border-radius: 30px;
+    background-color: white;
+}
+.todo-form{
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.todo-name{
+    padding: 3px 3px;
+}
+
+.todo-submit{
+    background-color: forestgreen;
+    color: white;
+    border-radius: 5px;
+    border-style: none;
+    padding: 3px 10px;
+    cursor: pointer;
+}
+
+.todo-submit:hover{
+    border: 2px solid skyblue;
+    background-color: darkgreen;
+}
+
+.control-todo{
+    display: flex;
+    justify-content: space-between;
+}
+
+.control-todo__title{
+    display: flex;
+    justify-content: center;
+}
+
+.control-todo__section{
+    width: 100%;
+    text-align: left;
+}
+
+.control-todo__list{
+    list-style-type: none;
+    padding: 5px;
+    margin: 5px;
+}
+.control-todo__item{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 5px;
+    border-bottom: 1px solid brown;
+    background-color: lightyellow;
+    border-radius: 10px;
+    width: 100%;
+}
+
+.control-todo__item-text{
+    flex: 1;
+
+}
+
+.control-todo__item-button{
+    background-color: red;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+}
