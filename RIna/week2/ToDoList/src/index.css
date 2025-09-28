@@ -1,0 +1,106 @@
+body{
+    background-color: aliceblue;
+    text-align: center;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* 전체 높이 */
+}
+
+
+.todo-container{
+    width: 400px;
+    padding: 10px;
+    border: 0px darkgray;
+    box-shadow: 0px 0px 10px lightgray;
+    border-radius: 30px;
+    background-color: white;
+}
+
+.todo-container__header{
+  font-size: 1.6rem;
+  font-weight: bold;
+}
+
+.todo-container__form{
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.todo-container__input{
+    padding: 3px 3px;
+}
+
+.todo-container__button{
+    background-color: forestgreen;
+    color: white;
+    border-radius: 5px;
+    border-style: none;
+    padding: 3px 10px;
+    cursor: pointer;
+
+    font-size: 14px;
+}
+
+.todo-container__button:hover{
+    border: 2px solid skyblue;
+    background-color: darkgreen;
+}
+
+
+
+.render-container{
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.render-container__section{
+    flex: 1;
+    padding: 0 10px;
+    box-sizing: border-box;
+    text-align: left;
+}
+
+.render-container__title{
+    display: flex;
+    justify-content: center;
+}
+
+
+.render-container__list{
+    list-style-type: none;
+    padding: 5px;
+    margin: 5px;
+}
+.render-container__item{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 5px;
+    border-bottom: 1px solid brown;
+    background-color: lightyellow;
+    border-radius: 10px;
+    width: 100%;
+    min-width: 55px;
+}
+
+.render-container__item-text{
+    flex: 1;
+    font-size: 14px;
+
+    word-wrap: break-word;
+    word-break: break-all;
+    margin-right: 10px;
+}
+
+.render-container__item-button{
+    background-color: red;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    flex-shrink: 0;
+}
