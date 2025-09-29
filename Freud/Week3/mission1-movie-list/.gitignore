@@ -1,0 +1,49 @@
+# Dependencies
+# 설치된 라이브러리 폴더로, 용량이 매우 크고 npm install로 재설치 가능하므로 제외합니다.
+/node_modules
+
+# Build output
+# 'npm run build' 실행 시 생성되는 최종 결과물 폴더입니다.
+/dist
+/dist-ssr
+
+# Logs
+# 실행 중 발생하는 로그 파일들을 제외합니다.
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Vite / TypeScript specific
+# Vite 캐시 및 타입스크립트 빌드 정보 파일을 제외합니다.
+.vite
+.tsbuildinfo
+*.local
+
+# Environment variables
+# API 키와 같은 비밀 정보를 담고 있으므로 절대 Git에 올리면 안 됩니다.
+.env
+.env.local
+.env.*.local
+
+# Editor directories and files
+# VSCode, WebStorm 등 개인 에디터 설정 파일을 제외합니다.
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# OS generated files
+# macOS와 Windows 운영체제가 자동으로 생성하는 시스템 파일들을 제외합니다.
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
