@@ -73,7 +73,6 @@ const MovieDetailPage = () => {
 
             <div className="border rounded p-6">
                 <div className="md:flex gap-6">
-                    {/* 포스터 */}
                     <div className="md:w-1/3 mb-4 md:mb-0">
                         <img 
                             src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
@@ -82,7 +81,6 @@ const MovieDetailPage = () => {
                         />
                     </div>
 
-                    {/* 정보 */}
                     <div className="md:w-2/3">
                         <h1 className="text-3xl font-bold mb-2">{movie.title}</h1>
                         

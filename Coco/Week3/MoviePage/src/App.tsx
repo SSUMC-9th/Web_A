@@ -4,11 +4,9 @@ import HomePage from './page/HomePage'
 import MoviePage from './page/MoviePage'
 import MovieDetailPage from './page/MovieDetailPage'
 
-// 레이아웃
 function RootLayout() {
   return (
     <div>
-      {/* 네비게이션 */}
       <nav className="bg-gray-800 p-4">
         <div className="flex gap-8 items-center max-w-7xl mx-auto">
           <h1 className="text-white text-xl font-bold">🎬 Movie App</h1>

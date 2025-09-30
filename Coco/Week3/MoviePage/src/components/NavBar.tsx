@@ -9,7 +9,7 @@ export default function NavBar() {
     return (
         <nav className="bg-gray-800 text-white shadow-lg sticky top-0 z-50">
             <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-                <h1 className="text-2xl font-bold">🎬 Movie Explorer</h1>
+                <h1 className="text-2xl font-bold">Movie</h1>
                 <div className="flex space-x-6">
                     {Links.map((link) => (
                         <NavLink 
