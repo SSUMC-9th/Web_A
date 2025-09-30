@@ -30,8 +30,9 @@ export default function MoviePage() {
 
   return (
     <div className="min-h-screen bg-gray-900 p-4">
+      {" "}
+      {/*최소 높이가 전체 높이로, 상하좌우 패딩 1rem*/}
       <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-        {/* movies 배열을 순회하며 각 영화를 MovieCards 컴포넌트로 렌더링 */}
         {movies.map((movie) => (
           <MovieCards key={movie.id} movie={movie} />
         ))}

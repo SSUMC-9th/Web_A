@@ -22,10 +22,13 @@ export default function MovieCard({ movie }: MovieCardProps) {
       />
 
       {isHovered && (
+        //자식 요소들을 세로(수직) 방향으로 정렬하는 flexbox 컨테이너로
         <div className="flex-1 flex flex-col justify-center">
           <h2 className="text-sm sm:text-lg font-bold mb-1 sm:mb-2">
             {movie.title}
           </h2>
+          // 텍스트가 길어질 경우, 기본 2줄까지만 보여주고 줄이는 tailwind CSS
+          class
           <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 sm:line-clamp-4">
             {movie.overview}
           </p>
