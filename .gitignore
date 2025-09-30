@@ -1,0 +1,19 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# build outputs
+dist/
+build/
+
+# tests
+coverage/
+
+# env & misc
+.env
+.env.*        # .env.local 등
+.DS_Store
+*.log
+.vscode/
+.idea/
