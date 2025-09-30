@@ -1,5 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
-import { Layout } from "./UI/Layout";
+import { Layout } from "./Layout/Layout";
 import Home from "./pages/Home";
 import MoviesPage from "./pages/MoviesPage";
 import MovieDetail from "./pages/MovieDetail";     // ✅ 새로 만들 컴포넌트
