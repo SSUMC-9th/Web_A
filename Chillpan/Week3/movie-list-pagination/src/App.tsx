@@ -49,7 +49,7 @@ function App() {
           }
         />
         <Route
-          path="upcoming"
+          path="upcoming:"
           element={
             <>
               <Navbar />
