@@ -1,27 +1,32 @@
 import { NavLink } from "react-router-dom";
 
 const Links = [
-    { name: "Home", to: "/" },
-    { name: "Movies", to: "/movies" },
+    { name: "홈", to: "/" },
+    { name: "영화", to: "/movies" },
 ];
 
 export default function NavBar() {
     return (
-        <nav className="bg-gray-800 text-white p-4 shadow-lg">
-            <div className="container mx-auto flex justify-center space-x-8">
-                {Links.map((link) => (
-                    <NavLink 
-                        key={link.to} 
-                        to={link.to} 
-                        className={({ isActive }) => 
-                            isActive 
-                                ? "text-blue-400 font-bold underline" 
-                                : "hover:text-blue-300 transition"
-                        }
-                    >
-                        {link.name}
-                    </NavLink>
-                ))}
+        <nav className="bg-gray-800 text-white shadow-lg sticky top-0 z-50">
+            <div className="container mx-auto px-6 py-4 flex justify-between items-center">
+                <h1 className="text-2xl font-bold">🎬 Movie Explorer</h1>
+                <div className="flex space-x-6">
+                    {Links.map((link) => (
+                        <NavLink 
+                            key={link.to} 
+                            to={link.to} 
+                            className={({ isActive }) => 
+                                `text-lg font-medium transition ${
+                                    isActive 
+                                        ? "text-blue-400 border-b-2 border-blue-400" 
+                                        : "text-gray-300 hover:text-white"
+                                }`
+                            }
+                        >
+                            {link.name}
+                        </NavLink>
+                    ))}
+                </div>
             </div>
         </nav>
     );

@@ -1,36 +1,61 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 import HomePage from './page/HomePage'
 import MoviePage from './page/MoviePage'
 import MovieDetailPage from './page/MovieDetailPage'
-import NavBar from './components/NavBar'
+
+// 레이아웃
+function RootLayout() {
+  return (
+    <div>
+      {/* 네비게이션 */}
+      <nav className="bg-gray-800 p-4">
+        <div className="flex gap-8 items-center max-w-7xl mx-auto">
+          <h1 className="text-white text-xl font-bold">🎬 Movie App</h1>
+          <div className="flex gap-6">
+            <NavLink
+              to="/"
+              className={({ isActive }) =>
+                isActive ? 'text-blue-400 font-bold' : 'text-white'
+              }
+            >
+              홈
+            </NavLink>
+            <NavLink
+              to="/movies"
+              className={({ isActive }) =>
+                isActive ? 'text-blue-400 font-bold' : 'text-white'
+              }
+            >
+              영화
+            </NavLink>
+          </div>
+        </div>
+      </nav>
+
+      <Outlet />
+    </div>
+  )
+}
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: (
-      <>
-        <NavBar />
-        <HomePage />
-      </>
-    ),
-  },
-  {
-    path: '/movies',
-    element: (
-      <>
-        <NavBar />
-        <MoviePage />
-      </>
-    ),
-  },
-  {
-    path: '/movies/:id',
-    element: (
-      <>
-        <NavBar />
-        <MovieDetailPage />
-      </>
-    ),
+    element: <RootLayout />,
+    children: [
+      {
+        index: true,
+        element: <HomePage />,
+      },
+      {
+        path: 'movies',
+        element: <MoviePage />,
+      },
+      {
+        path: 'movies/:id',
+        element: <MovieDetailPage />,
+      },
+    ],
   },
 ])
 

@@ -1,14 +1,16 @@
+import { Link } from 'react-router-dom';
+
 const HomePage = () => {
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900">    
-            <h1 className="text-4xl font-bold mb-8 text-white">Welcome to Movie Explorer</h1>
-            <p className="text-lg text-gray-300 mb-4">Discover and explore movies from around the world.</p>
-            <a 
-                href="/movies" 
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        <div className="text-center p-20">    
+            <h1 className="text-4xl font-bold mb-4">Welcome to Movie App</h1>
+            <p className="text-gray-600 mb-8">영화를 검색하고 정보를 확인하세요</p>
+            <Link 
+                to="/movies" 
+                className="bg-blue-500 text-white px-6 py-3 rounded inline-block hover:bg-blue-600"
             >
-                Explore Movies
-            </a>
+                영화 보러가기
+            </Link>
         </div>
     );
 }

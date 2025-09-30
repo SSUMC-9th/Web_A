@@ -2,18 +2,18 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import type { Movie, MovieResponse } from '../types/movie'
 import MovieCard from '../components/MovieCard'
-import { LoadingSpinner } from '../components/LoadingSpinner';
+import { LoadingSpinner } from '../components/LoadingSpinner'
 
 export default function MoviePage() {
     const [movies, setMovies] = useState<Movie[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(1);
 
     useEffect(() => {
         const fetchMovie = async () => {
             setLoading(true);
-            setError(false);
+            setError(null);
 
             try {
                 const response = await axios.get<MovieResponse>(
@@ -29,66 +29,68 @@ export default function MoviePage() {
                     }
                 );
                 setMovies(response.data.results);
-            } catch {
-                setError(true);
+            } catch (err) {
+                setError('영화 데이터를 불러오는데 실패했습니다.');
+                console.error(err);
             } finally {
                 setLoading(false);
             }
         };
+        
         fetchMovie();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }, [page]);
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center p-20">
+                <LoadingSpinner />
+            </div>
+        );
+    }
 
     if (error) {
         return (
-            <div className="flex justify-center items-center min-h-screen bg-gray-900">
-                <div className="text-red-500 text-xl">
-                    에러가 발생했습니다. 잠시 후 다시 시도해주세요.
-                </div>
+            <div className="text-center p-20">
+                <p className="text-red-500 mb-4">{error}</p>
+                <button 
+                    onClick={() => window.location.reload()}
+                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                >
+                    다시 시도
+                </button>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-900 p-10">
-            <h1 className="text-4xl font-bold text-white mb-8 text-center">
-                🎬 인기 영화
-            </h1>
+        <div className="p-8 max-w-7xl mx-auto">
+            <h1 className="text-3xl font-bold mb-6">인기 영화</h1>
 
-            {/* 페이지네이션 버튼 */}
-            <div className="flex justify-center items-center mb-8 gap-4">
+            {/* 영화 그리드 */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-8">
+                {movies.map((movie) => (
+                    <MovieCard key={movie.id} movie={movie} />
+                ))}
+            </div>
+
+            {/* 페이지 버튼 */}
+            <div className="flex justify-center items-center gap-4">
                 <button 
                     onClick={() => setPage((prev) => Math.max(prev - 1, 1))} 
                     disabled={page === 1} 
-                    className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-500 transition"
+                    className="bg-gray-300 px-4 py-2 rounded disabled:opacity-50"
                 >
                     이전
                 </button>
-                <span className="text-white text-lg font-semibold">
-                    페이지 {page}
-                </span>
+                <span className="font-bold">{page} 페이지</span>
                 <button 
                     onClick={() => setPage((prev) => prev + 1)} 
-                    className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                    className="bg-gray-300 px-4 py-2 rounded"
                 >
                     다음
                 </button>
             </div>
-
-            {/* 로딩 스피너 */}
-            {loading && (
-                <div className='flex justify-center items-center h-96'>
-                    <LoadingSpinner />
-                </div>
-            )}
-
-            {/* 영화 그리드 */}
-            {!loading && (
-                <div className="grid gap-6 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                    {movies.map((movie) => (
-                        <MovieCard key={movie.id} movie={movie} />
-                    ))}
-                </div>
-            )}
         </div>
     );
 }
