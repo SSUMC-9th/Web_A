@@ -38,6 +38,7 @@ export default function MoviesListPage({ category }: MoviesListPageProps) {
           endpoint = "movie/popular";
       }
 
+      //endpoint에 따른 API 주소 호출
       const { data } = await axios(
         `https://api.themoviedb.org/3/${endpoint}?language=ko-KR&page=${page}`, // endpoint에 따른 API 주소 호출-> endpoint 와 page 넘버 받아옴
         {
@@ -138,7 +139,7 @@ export default function MoviesListPage({ category }: MoviesListPageProps) {
       <div className="p-4">
         <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
           {movies.map((movie) => (
-            <MovieCards key={movie.id} movie={movie} />
+            <MovieCards key={movie.id} movie={movie} /> // 여기서 영화 카드 컴포넌트 호출
           ))}
         </div>
       </div>
