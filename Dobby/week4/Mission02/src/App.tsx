@@ -6,6 +6,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import LoginPage from './pages/LoginPage';
 import HomeLayout from './layouts/HomeLayouts';
 import SignupPage from './pages/SignupPage';
+import MyPage from './pages/MyPage';
 
 // 1. 홈페이지
 // 2. 로그인 페이지
@@ -19,7 +20,8 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage />},
       { path: "login", element: <LoginPage />},
-      { path: "signup", element: <SignupPage />},
+      { path: "signup", element: <SignupPage /> },
+      { path: "mypage", element: <MyPage /> },
     ],
   },
 ]);

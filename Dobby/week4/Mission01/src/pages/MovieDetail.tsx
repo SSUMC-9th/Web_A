@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   fetchMovieCredits,
@@ -7,6 +7,7 @@ import {
   type Credits,
   type MovieDetails,
 } from "../api/tmdb";
+import { useCustomFetch } from "../hooks/useCustomFetch";
 
 // 작은 포맷터들
 const yearOf = (date?: string) => (date ? new Date(date).getFullYear() : "");
@@ -14,38 +15,30 @@ const minutesToKR = (m?: number | null) =>
   typeof m === "number" ? `${Math.floor(m / 60)}시간 ${m % 60}분` : "";
 
 export default function MovieDetail() {
-  const navigate = useNavigate();  
+  const navigate = useNavigate();
   const { movieId } = useParams();
   const id = useMemo(() => Number(movieId), [movieId]);
+  const isInvalidId = !id || Number.isNaN(id);
 
-  const [detail, setDetail] = useState<MovieDetails | null>(null);
-  const [credits, setCredits] = useState<Credits | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState<string | null>(null);
+  const {
+    data: detail,
+    loading: loadingDetail,
+    error: detailErr,
+  } = useCustomFetch<MovieDetails>(() => {
+    if (isInvalidId) return Promise.reject(new Error("잘못된 영화 ID입니다."));
+    return fetchMovieDetails(id);
+  }, [id, isInvalidId]);
+  const {
+    data: credits,
+    loading: loadingCredits,
+    error: creditsErr,
+  } = useCustomFetch<Credits>(() => {
+    if (isInvalidId) return Promise.reject(new Error("잘못된 영화 ID입니다."));
+    return fetchMovieCredits(id);
+  }, [id, isInvalidId]);
 
-  useEffect(() => {
-    if (!id || Number.isNaN(id)) {
-      setErr("잘못된 영화 ID입니다.");
-      setLoading(false);
-      return;
-    }
-    let ok = true;
-    setLoading(true);
-    setErr(null);
-
-    Promise.all([fetchMovieDetails(id), fetchMovieCredits(id)])
-      .then(([d, c]) => {
-        if (!ok) return;
-        setDetail(d);
-        setCredits(c);
-      })
-      .catch((e) => ok && setErr(e.message ?? "데이터를 불러오지 못했습니다."))
-      .finally(() => ok && setLoading(false));
-
-    return () => {
-      ok = false;
-    };
-  }, [id]);
+  const loading = loadingDetail || loadingCredits;
+  const err = detailErr || creditsErr;
 
   if (loading) return <Spinner />;
   if (err) return <ErrorBox message={err} />;
@@ -75,9 +68,7 @@ export default function MovieDetail() {
             <span>{yearOf(detail.release_date)}</span>
             <span>{minutesToKR(detail.runtime)}</span>
           </div>
-          {detail.tagline && (
-            <p className="mt-3 italic text-neutral-200">{detail.tagline}</p>
-          )}
+          {detail.tagline && <p className="mt-3 italic text-neutral-200">{detail.tagline}</p>}
         </div>
       </section>
 
@@ -85,23 +76,24 @@ export default function MovieDetail() {
       <section className="grid gap-6 md:grid-cols-[200px,1fr]">
         <div>
           {poster ? (
-            <img
-              src={poster}
-              alt={detail.title}
-              className="w-[200px] rounded-xl shadow-md"
-            />
+            <img src={poster} alt={detail.title} className="w-[200px] rounded-xl shadow-md" />
           ) : (
             <div className="w-[200px] h-[300px] rounded-xl bg-neutral-800" />
           )}
         </div>
         <div>
           <h2 className="mb-2 text-xl font-semibold">줄거리</h2>
-          <p className="leading-relaxed text-neutral-300">{detail.overview || "설명이 없습니다."}</p>
+          <p className="leading-relaxed text-neutral-300">
+            {detail.overview || "설명이 없습니다."}
+          </p>
 
           {detail.genres?.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-2">
               {detail.genres.map((g) => (
-                <span key={g.id} className="rounded-full border border-neutral-700 px-3 py-1 text-xs text-neutral-300">
+                <span
+                  key={g.id}
+                  className="rounded-full border border-neutral-700 px-3 py-1 text-xs text-neutral-300"
+                >
                   {g.name}
                 </span>
               ))}
@@ -115,11 +107,7 @@ export default function MovieDetail() {
         <h2 className="mb-4 text-xl font-semibold">감독/출연</h2>
         {director && (
           <div className="mb-6">
-            <PersonChip
-              name={director.name}
-              role="Director"
-              profile_path={director.profile_path}
-            />
+            <PersonChip name={director.name} role="Director" profile_path={director.profile_path} />
           </div>
         )}
 
@@ -134,11 +122,11 @@ export default function MovieDetail() {
 
       <div className="mt-10">
         <button
-          onClick={() => navigate(-1)}  
+          onClick={() => navigate(-1)}
           className="inline-block rounded-lg border border-neutral-700 px-4 py-2 text-neutral-300 hover:bg-neutral-800"
-            aria-label="뒤로 가기"
+          aria-label="뒤로 가기"
         >
-           ← 뒤로
+          ← 뒤로
         </button>
       </div>
     </article>
@@ -185,8 +173,6 @@ function Spinner() {
 
 function ErrorBox({ message }: { message: string }) {
   return (
-    <div className="p-6 rounded-lg border border-red-700 bg-red-950/40 text-red-300">
-      {message}
-    </div>
+    <div className="p-6 rounded-lg border border-red-700 bg-red-950/40 text-red-300">{message}</div>
   );
 }
