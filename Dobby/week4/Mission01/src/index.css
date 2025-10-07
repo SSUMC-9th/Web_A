@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+/* 카드 라운드, 그림자 느낌을 조금 강화하고 싶다면 */
+@layer utilities {
+  .card {
+    @apply rounded-2xl shadow-md overflow-hidden bg-neutral-900/40;
+  }
+}
