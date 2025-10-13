@@ -35,8 +35,16 @@ const MyPage = () => {
   }, []);
 
   const handleLogout = async () => {
+    // 로그아웃 플래그 설정
+    sessionStorage.setItem("isLoggingOut", "true");
+
     await logout();
     navigate("/login");
+
+    // 로그아웃 완료 후 플래그 제거
+    setTimeout(() => {
+      sessionStorage.removeItem("isLoggingOut");
+    }, 100);
   };
 
   if (loading) {
@@ -83,12 +91,20 @@ const MyPage = () => {
               <p className="mb-4">
                 <strong>ID:</strong> {userInfo.id}
               </p>
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors duration-200"
-              >
-                로그아웃
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => navigate("/")}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors duration-200"
+                >
+                  홈페이지
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors duration-200"
+                >
+                  로그아웃
+                </button>
+              </div>
             </div>
           ) : (
             <p>사용자 정보를 불러올 수 없습니다.</p>

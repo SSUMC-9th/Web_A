@@ -9,6 +9,7 @@ import SignupPage from "../pages/SignupPage";
 import Mypage from "../pages/Mypage";
 import ProtectedLayout from "../Layout/protectedLayouy";
 import { AuthProvider } from "./context/AuthContext";
+import GoogleLoginPage from "../pages/GoogleLoginPage";
 
 // 1. 홈페이지
 // 2. 로그인 페이지
@@ -23,6 +24,7 @@ const publicRoutes: RouteObject[] = [
       { index: true, element: <HomePage /> },
       { path: "login", element: <Loginpage /> },
       { path: "signup", element: <SignupPage /> },
+      { path: "/v1/auth/google/callback", element: <GoogleLoginPage /> },
     ],
   },
 ];
