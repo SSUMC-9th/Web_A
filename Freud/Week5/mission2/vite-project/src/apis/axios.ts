@@ -42,7 +42,7 @@ axiosInstance.interceptors.response.use(
             !originalRequest._retry &&
             originalRequest.url !== '/v1/auth/refresh'
         ) {
-            console.log('Access Token 만료 감지! 토큰 갱신을 시작합니다...');
+            console.log('Access Token 만료 감지! 토큰 갱신을 시작합니다... @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
             originalRequest._retry = true;
 
             try {
@@ -68,7 +68,7 @@ axiosInstance.interceptors.response.use(
                     const newAccessToken = refreshResponse.data.data.accessToken;
                     const newRefreshToken = refreshResponse.data.data.refreshToken;
 
-                    console.log('토큰 갱신 성공!');
+                    console.log('토큰 갱신 성공! ★★★★★★★★★★★★★★★★★★★★★★★★');
                     console.log('새로운 Access Token:', newAccessToken.substring(0, 20) + '...');
 
                     // 새로운 토큰들을 localStorage에 저장
