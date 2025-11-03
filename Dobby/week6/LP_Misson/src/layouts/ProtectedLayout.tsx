@@ -1,4 +1,5 @@
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
+import burger from "../assets/burger.svg";
 import FAB from "../components/FAB";
 import MobileSidebar from "../components/MobileSidebar";
 import Sidebar from "../components/Sidebar";
@@ -7,13 +8,13 @@ import useDisclosure from "../hooks/useDisclosure";
 
 const ProtectedLayout = () => {
   const { accessToken, userName } = useAuth();
-  const { isOpen, toggle, close } = useDisclosure(false);
+  const { isOpen, toggle, close } = useDisclosure(true);
   const location = useLocation();
   if (!accessToken) {
     return <Navigate to={"/login"} replace />;
   }
   return (
-    <div className="h-dvh flex flex-col bg-black text-white">
+    <div className="min-h-dvh flex flex-col bg-black text-white">
       <nav className="sticky top-0 z-10 w-full bg-zinc-900/90 backdrop-blur px-4">
         <div className="mx-auto max-w-5xl h-14 flex items-center justify-between">
           <Link to="/" className="font-bold tracking-tight text-pink-500">
@@ -21,24 +22,15 @@ const ProtectedLayout = () => {
           </Link>
           <div className="flex items-center gap-3">
             <button
-              className="md:hidden h-8 w-8 rounded hover:bg-zinc-800 flex items-center justify-center"
+              className="h-8 w-8 rounded hover:bg-zinc-800 flex items-center justify-center"
               aria-label="사이드바 열기"
               onClick={toggle}
             >
-              <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="4"
-                  d="M7.95 11.95h32m-32 12h32m-32 12h32"
-                />
-              </svg>
+              <img src={burger} alt="" className="h-5 w-5" />
             </button>
             {accessToken && (
               <span className="hidden sm:inline text-sm text-zinc-300">
-                로그인 {userName ?? "사용자"}님 환영합니다
+                {userName ?? "사용자"}님 환영합니다
               </span>
             )}
             <Link
@@ -54,7 +46,7 @@ const ProtectedLayout = () => {
       </nav>
       <MobileSidebar open={isOpen} onClose={close} />
       <div className="flex mx-auto w-full max-w-5xl gap-6">
-        <Sidebar />
+        {isOpen && <Sidebar />}
         <main className="flex-1 p-4">
           <Outlet />
         </main>

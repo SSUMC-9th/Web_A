@@ -3,18 +3,21 @@ import { getLpList } from "../../apis/lp";
 import { QUERY_KEY } from "../../constants/key";
 import type { PaginationDto } from "../../types/common";
 
-export const useInfiniteLpList = ({ limit = 20, search, order }: PaginationDto) => {
+export const useInfiniteLpList = ({ limit, search, order }: PaginationDto) => {
   return useInfiniteQuery({
-    queryKey: [QUERY_KEY.lps, "infinite", search ?? "", order ?? "desc", limit],
-    initialPageParam: 0,
-    queryFn: ({ pageParam }) =>
-      getLpList({
-        cursor: pageParam as number,
-        limit,
+    queryKey: [QUERY_KEY.lps, order ?? "desc"],
+    initialPageParam: 0 as number,
+    queryFn: ({ pageParam }) => {
+      const params: PaginationDto = {
+        cursor: typeof pageParam === "number" ? pageParam : 0,
         search,
         order,
-      }),
-    getNextPageParam: (lastPage) => (lastPage?.hasNext ? lastPage.nextCursor : undefined),
+      };
+      if (typeof limit === "number") params.limit = limit;
+      return getLpList(params);
+    },
+    // 예시 구조와 유사하게 nextCursor를 우선 사용하고, 없으면 중단
+    getNextPageParam: (lastPage) => lastPage?.nextCursor ?? undefined,
   });
 };
 

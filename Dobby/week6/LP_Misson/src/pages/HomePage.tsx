@@ -1,9 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ErrorView from "../components/ErrorView";
 import LPCard from "../components/LPCard";
-import Spinner from "../components/Spinner";
+import SkeletonCard from "../components/SkeletonCard";
 import { PAGINATION_ORDER } from "../enums/common";
-import { useLpList } from "../hooks/queries/useLpList";
+import useInfiniteLpList from "../hooks/queries/useInfiniteLpList";
 
 type LpItem = {
   id: number;
@@ -15,11 +15,43 @@ type LpItem = {
 
 const HomePage = () => {
   const [order, setOrder] = useState<PAGINATION_ORDER>(PAGINATION_ORDER.desc);
-  const { data, isLoading, isError, refetch } = useLpList({ limit: 40, order });
+  const PAGE_LIMIT = 50;
+  const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteLpList({ order, limit: PAGE_LIMIT });
 
   const items: LpItem[] = useMemo(() => {
-    return (data?.data?.data ?? []) as unknown as LpItem[];
+    return (data?.pages.flatMap(
+      (page) => (page as unknown as { data?: { data?: LpItem[] } })?.data?.data ?? []
+    ) ?? []) as LpItem[];
   }, [data]);
+
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const target = loadMoreRef.current;
+    if (!target) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          void fetchNextPage();
+        }
+      },
+      { rootMargin: "300px" }
+    );
+    io.observe(target);
+    return () => io.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  // 스크롤 이벤트 백업 트리거(일부 브라우저/환경에서 IO가 동작하지 않을 때 대비)
+  useEffect(() => {
+    const onScroll = () => {
+      const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 300;
+      if (nearBottom && hasNextPage && !isFetchingNextPage) {
+        void fetchNextPage();
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   return (
     <div className="w-full">
@@ -36,22 +68,41 @@ const HomePage = () => {
         </button>
       </div>
 
-      {isLoading && <Spinner />}
+      {isLoading && (
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-4">
+          {Array.from({ length: PAGE_LIMIT }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      )}
       {isError && <ErrorView onRetry={() => void refetch()} />}
 
       {!isLoading && !isError && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {items.map((lp) => (
-            <LPCard
-              key={lp.id}
-              id={lp.id}
-              title={lp.title}
-              thumbnail={lp.thumbnail}
-              createdAt={lp.createdAt}
-              likesCount={(lp.likes as unknown[]).length}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-4">
+            {items.map((lp) => (
+              <LPCard
+                key={lp.id}
+                id={lp.id}
+                title={lp.title}
+                thumbnail={lp.thumbnail}
+                createdAt={lp.createdAt}
+                likesCount={(lp.likes as unknown[]).length}
+              />
+            ))}
+          </div>
+          <div ref={loadMoreRef} className="h-6" />
+          {isFetchingNextPage && (
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-5 gap-4 mt-2">
+              {Array.from({ length: Math.ceil(PAGE_LIMIT / 2) }).map((_, i) => (
+                <SkeletonCard key={`next-${i}`} />
+              ))}
+            </div>
+          )}
+          {!hasNextPage && (
+            <div className="py-4 text-center text-zinc-500 text-sm">마지막 페이지입니다</div>
+          )}
+        </>
       )}
     </div>
   );
