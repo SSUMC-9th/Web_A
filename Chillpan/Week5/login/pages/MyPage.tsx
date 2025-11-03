@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getMyInfo } from "../apis/auth.ts";
 import type { ResponseMyInfoDto } from "../src/types/common";
 import { useAuth } from "../src/context/AuthContext";
+import type { AxiosError } from "axios";
 
 const MyPage = () => {
   const { logout } = useAuth();
@@ -25,7 +26,10 @@ const MyPage = () => {
         // 사용자 정보를 state에 저장
         setUserInfo(response.data);
       } catch (error) {
-        console.error("사용자 정보 가져오기 실패:", error);
+        const axiosError = error as AxiosError;
+        if (axiosError.response?.status !== 401) {
+          console.error("사용자 정보 가져오기 실패:", error);
+        }
       } finally {
         setLoading(false);
       }
@@ -48,76 +52,43 @@ const MyPage = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <nav className="bg-slate-800 text-white p-4 shadow-lg">
-          <div className="container mx-auto">
-            <h1 className="text-xl font-semibold">네비게이션 바 입니다.</h1>
-          </div>
-        </nav>
-        <main className="flex-1 flex items-center justify-center bg-gray-50">
-          <div>로딩 중...</div>
-        </main>
-        <footer className="bg-slate-700 text-white p-4 shadow-lg">
-          <div className="container mx-auto text-center">
-            <p>광고 배너</p>
-          </div>
-        </footer>
-      </div>
-    );
+    return <div className="text-white">로딩 중...</div>;
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* 네비게이션 바 */}
-      <nav className="bg-slate-800 text-white p-4 shadow-lg">
-        <div className="container mx-auto">
-          <h1 className="text-xl font-semibold">네비게이션 바 입니다.</h1>
-        </div>
-      </nav>
-
-      {/* 메인 콘텐츠 */}
-      <main className="flex-1 flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-6">마이페이지</h1>
-          {userInfo ? (
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <p className="mb-2">
-                <strong>이름:</strong> {userInfo.name}
-              </p>
-              <p className="mb-2">
-                <strong>이메일:</strong> {userInfo.email}
-              </p>
-              <p className="mb-4">
-                <strong>ID:</strong> {userInfo.id}
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => navigate("/")}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors duration-200"
-                >
-                  홈페이지
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors duration-200"
-                >
-                  로그아웃
-                </button>
-              </div>
+    <div className="min-h-full flex items-center justify-center">
+      <div className="text-center text-white">
+        <h1 className="text-2xl font-bold mb-12 mt-20">마이페이지</h1>
+        {userInfo ? (
+          <div className="bg-gray-800 p-10 rounded-lg shadow-md min-w-[400px]">
+            <p className="mb-4 text-lg">
+              <strong>이름:</strong> {userInfo.name}
+            </p>
+            <p className="mb-4 text-lg">
+              <strong>이메일:</strong> {userInfo.email}
+            </p>
+            <p className="mb-6 text-lg">
+              <strong>ID:</strong> {userInfo.id}
+            </p>
+            <div className="flex gap-3 justify-center">
+              <button
+                onClick={() => navigate("/")}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors duration-200"
+              >
+                홈페이지
+              </button>
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors duration-200"
+              >
+                로그아웃
+              </button>
             </div>
-          ) : (
-            <p>사용자 정보를 불러올 수 없습니다.</p>
-          )}
-        </div>
-      </main>
-
-      {/* 광고 배너 */}
-      <footer className="bg-slate-700 text-white p-4 shadow-lg">
-        <div className="container mx-auto text-center">
-          <p>광고 배너</p>
-        </div>
-      </footer>
+          </div>
+        ) : (
+          <p>사용자 정보를 불러올 수 없습니다.</p>
+        )}
+      </div>
     </div>
   );
 };

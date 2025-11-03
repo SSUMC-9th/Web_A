@@ -44,8 +44,8 @@ const LoginPage = () => {
         JSON.stringify(googleRefreshToken)
       );
 
-      // 마이페이지로 리디렉션
-      navigate("/mypage", { replace: true });
+      // 루트 페이지로 리디렉션
+      navigate("/", { replace: true });
     }
   }, [navigate]);
   const { values, errors, touched, getInputProps } =
@@ -63,7 +63,7 @@ const LoginPage = () => {
     localStorage.removeItem(LOCAL_STORAGE_KEY.refreshToken);
 
     await login(values);
-    navigate("/mypage");
+    navigate("/");
   };
 
   const handleGoogleLogin = () => {
@@ -91,65 +91,55 @@ const LoginPage = () => {
     Object.values(values).some((value: string) => value === ""); // 값이 비어있으면 true
 
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* 네비게이션 바 */}
-      <nav className="bg-slate-800 text-white p-4 shadow-lg">
-        <div className="container mx-auto">
-          <h1 className="text-xl font-semibold">네비게이션 바 입니다.</h1>
-        </div>
-      </nav>
-
-      {/* 메인 콘텐츠 */}
-      <main className="flex-1 flex items-center justify-center bg-gray-50">
-        <div className="flex flex-col gap-3">
-          <input
-            {...getInputProps("email")}
-            name="email"
-            className="border border-[#ccc] w-[300px] p-[10px] focus:border-[#807bff] rounded-md"
-            type="email"
-            placeholder="이메일을 입력해주세요."
-          />
-          {errors.email && touched.email && (
-            <p className="text-red-500">{errors.email}</p>
-          )}
-          <input
-            {...getInputProps("password")}
-            name="password"
-            className="border border-[#ccc] w-[300px] p-[10px] focus:border-[#807bff] rounded-md"
-            type="password"
-            placeholder="비밀번호를 입력해주세요."
-          />
-          {errors.password && touched.password && (
-            <p className="text-red-500">{errors.password}</p>
-          )}
-          <button
-            type="button"
-            onClick={handleSubmit}
-            disabled={isDisabled}
-            className={`text-white p-[10px] rounded-md transition-colors duration-200 ${
-              isDisabled
-                ? "bg-[#807bff]/50 cursor-not-allowed"
-                : "bg-[#807bff] hover:bg-[#605bff] cursor-pointer"
-            }`}
-          >
-            로그인
-          </button>
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            className="text-white p-[10px] rounded-md transition-colors duration-200 bg-[#807bff] hover:bg-[#605bff] cursor-pointer"
-          >
-            구글 로그인
-          </button>
-        </div>
-      </main>
-
-      {/* 광고 배너 */}
-      <footer className="bg-slate-700 text-white p-4 shadow-lg">
-        <div className="container mx-auto text-center">
-          <p>광고 배너</p>
-        </div>
-      </footer>
+    <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center bg-gray-100 py-8">
+      <div className="bg-white p-8 rounded-lg shadow-lg flex flex-col gap-3">
+        <input
+          {...getInputProps("email")}
+          name="email"
+          className="border border-[#ccc] w-[300px] p-[10px] focus:border-[#807bff] rounded-md bg-white text-gray-900"
+          type="email"
+          placeholder="이메일을 입력해주세요."
+        />
+        {errors.email && touched.email && (
+          <p className="text-red-500">{errors.email}</p>
+        )}
+        <input
+          {...getInputProps("password")}
+          name="password"
+          className="border border-[#ccc] w-[300px] p-[10px] focus:border-[#807bff] rounded-md bg-white text-gray-900"
+          type="password"
+          placeholder="비밀번호를 입력해주세요."
+        />
+        {errors.password && touched.password && (
+          <p className="text-red-500">{errors.password}</p>
+        )}
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={isDisabled}
+          className={`text-white p-[10px] rounded-md transition-colors duration-200 ${
+            isDisabled
+              ? "bg-[#807bff]/50 cursor-not-allowed"
+              : "bg-[#807bff] hover:bg-[#605bff] cursor-pointer"
+          }`}
+        >
+          로그인
+        </button>
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="text-white p-[10px] rounded-md transition-colors duration-200 bg-[#807bff] hover:bg-[#605bff] cursor-pointer"
+        >
+          구글 로그인
+        </button>
+        <button
+          type="button"
+          onClick={() => navigate("/signup")}
+          className="text-white p-[10px] rounded-md transition-colors duration-200 bg-[#807bff] hover:bg-[#605bff] cursor-pointer"
+        >
+          회원가입
+        </button>
+      </div>
     </div>
   );
 };
