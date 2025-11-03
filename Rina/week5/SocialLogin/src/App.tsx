@@ -1,0 +1,43 @@
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import './App.css'
+import HomePage from './pages/HomePage'
+import NotFound from './pages/NotFoundPage'
+import LoginPage from './pages/LoginPage'
+import HomeLayout from './layouts/HomeLayout'
+import SignupPage from './pages/SignupPage'
+import MyPage from './pages/MyPage'
+import { AuthProvider } from './context/AuthContext'
+import ProtectdRoute from './routes/ProtectedRoute'
+import { GoogleOAuthProvider } from '@react-oauth/google'
+
+const router = createBrowserRouter([
+  {
+    path:'/',
+    element: <HomeLayout />,
+    errorElement: <NotFound />,
+    children: [
+      { index: true, element: <HomePage />},
+      { path: 'login', element: <LoginPage /> },
+      { path: 'signup', element: <SignupPage />},
+      {
+        element: <ProtectdRoute />,
+        children: [
+          { path: 'mypage', element: <MyPage />},
+        ],
+      }
+    ],
+  }
+]);
+
+function App() {
+  return (
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    </GoogleOAuthProvider>
+  )
+  
+}
+
+export default App
