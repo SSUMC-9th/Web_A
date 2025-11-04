@@ -25,6 +25,7 @@ const HomePage = () => {
     ) ?? []) as LpItem[];
   }, [data]);
 
+  // 무한 스크롤 트리거 (IntersectionObserver로 바닥 근처에 닿으면 다음 페이지 로딩)
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     const target = loadMoreRef.current;

@@ -8,13 +8,7 @@ export const useInfiniteLpList = ({ limit, search, order }: PaginationDto) => {
     queryKey: [QUERY_KEY.lps, order ?? "desc"],
     initialPageParam: 0 as number,
     queryFn: ({ pageParam }) => {
-      const params: PaginationDto = {
-        cursor: typeof pageParam === "number" ? pageParam : 0,
-        search,
-        order,
-      };
-      if (typeof limit === "number") params.limit = limit;
-      return getLpList(params);
+      return getLpList({ limit, search, order, cursor: pageParam });
     },
     // 예시 구조와 유사하게 nextCursor를 우선 사용하고, 없으면 중단
     getNextPageParam: (lastPage) => lastPage?.nextCursor ?? undefined,
