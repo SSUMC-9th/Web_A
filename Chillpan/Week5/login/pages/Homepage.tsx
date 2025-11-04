@@ -15,7 +15,7 @@ const HomePage = () => {
   const { order, showSearch } = useOutletContext<OutletContextType>();
   const [search, setSearch] = useState("");
 
-  //const { data, isPending, isError, error } = useGetLpList({
+  //const { data, isPending, isError, error } = useGetLpList({ -> 무한스크롤 구현 위해 주석 처리.
   // search,
   // order: order === "asc" ? PAGINATION_ORDER.asc : PAGINATION_ORDER.desc,
   // limit: 50,
@@ -30,7 +30,7 @@ const HomePage = () => {
     isError,
     error,
   } = useGetInfiniteLpList(
-    20, // 초기 로딩을 빠르게 하기 위해 limit을 줄임 (화면에 보이는 데이터만)
+    20, // 초기 로딩 속도에 영향을 줆.
     search,
     order === "asc" ? PAGINATION_ORDER.asc : PAGINATION_ORDER.desc
   );
@@ -44,6 +44,7 @@ const HomePage = () => {
 
   useEffect(() => {
     if (inView && !isFetching && hasNextPage) {
+      //
       fetchNextPage();
     }
   }, [inView, isFetching, hasNextPage, fetchNextPage]);
@@ -110,7 +111,6 @@ const HomePage = () => {
                 ))}
             </div>
           )}
-          {/* 무한 스크롤 트리거 요소 */}
           {hasNextPage && (
             <div ref={ref} className="h-10 flex items-center justify-center">
               {isFetching && (
