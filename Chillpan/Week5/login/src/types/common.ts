@@ -50,15 +50,11 @@ export type ResponseMyInfoDto = CommonResponse<{
   updatedAt: Date;
 }>;
 
-//커서 기반 페이지네이션
-export type CursorBasedResponse<T> = {
-  status: boolean;
-  statusCode: number;
-  message: string;
+export type CursorBasedResponse<T> = CommonResponse<{
   data: T;
-  nextCursor: number;
+  nextCursor: number | null;
   hasNext: boolean;
-};
+}>;
 
 export type PaginationDto = {
   cursor?: number;

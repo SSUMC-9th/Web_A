@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
-import useGetLpList from "../hooks/queries/useGetLpList";
+import useGetInfiniteLpList from "../hooks/queries/useGetInfiniteLpList";
 import { PAGINATION_ORDER } from "../enums/common";
 import type { ResponseLpListDto } from "../src/types/lp";
-
+import type { Lp } from "../src/types/lp";
+import { useInView } from "react-intersection-observer";
+import LpCardSkeleton from "../components/LpCard/LpCardSkeleton";
 interface OutletContextType {
   order: "asc" | "desc";
   showSearch: boolean;
@@ -13,12 +15,38 @@ const HomePage = () => {
   const { order, showSearch } = useOutletContext<OutletContextType>();
   const [search, setSearch] = useState("");
 
-  const { data, isPending, isError, error } = useGetLpList({
+  //const { data, isPending, isError, error } = useGetLpList({
+  // search,
+  // order: order === "asc" ? PAGINATION_ORDER.asc : PAGINATION_ORDER.desc,
+  // limit: 50,
+  //});
+
+  const {
+    data: lps,
+    isFetching,
+    hasNextPage,
+    isPending,
+    fetchNextPage,
+    isError,
+    error,
+  } = useGetInfiniteLpList(
+    20, // 초기 로딩을 빠르게 하기 위해 limit을 줄임 (화면에 보이는 데이터만)
     search,
-    order: order === "asc" ? PAGINATION_ORDER.asc : PAGINATION_ORDER.desc,
+    order === "asc" ? PAGINATION_ORDER.asc : PAGINATION_ORDER.desc
+  );
+
+  // ref, inView
+  // ref -> 특정한 HTML 요소를 감시할 수 있다.
+  // inView -> 그 요소가 화면에 보이면 true
+  const { ref, inView } = useInView({
+    threshold: 0,
   });
 
-  const lpList = data as ResponseLpListDto | undefined;
+  useEffect(() => {
+    if (inView && !isFetching && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, isFetching, hasNextPage, fetchNextPage]);
 
   return (
     <div className="min-h-full p-4">
@@ -34,43 +62,60 @@ const HomePage = () => {
         </div>
       )}
 
-      {isPending && <div className="text-white">Loading...</div>}
-
       {isError && <div className="text-white">Error: {error?.message}</div>}
 
-      {!isPending && !isError && (
+      {isPending ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          {Array.from({ length: 12 }).map((_, index) => (
+            <LpCardSkeleton key={index} />
+          ))}
+        </div>
+      ) : (
         <>
-          {!lpList ||
-          !lpList.data ||
-          !lpList.data.data ||
-          lpList.data.data.length === 0 ? (
+          {!lps?.pages || lps.pages.length === 0 ? (
             <div className="text-white">데이터가 없습니다.</div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {lpList.data.data.map((lp) => (
-                <div
-                  key={lp.id}
-                  className="bg-gray-800 rounded-lg overflow-hidden"
-                >
-                  <div className="aspect-square bg-gray-700 flex items-center justify-center overflow-hidden">
-                    {lp.thumbnail ? (
-                      <img
-                        src={lp.thumbnail}
-                        alt={lp.title}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-gray-400 text-4xl">🎵</span>
-                    )}
+              {lps.pages
+                ?.map((page: ResponseLpListDto) => page.data.data)
+                ?.flat()
+                ?.map((lp: Lp) => (
+                  <div
+                    key={lp.id}
+                    className="bg-gray-800 rounded-lg overflow-hidden"
+                  >
+                    <div className="aspect-square bg-gray-700 flex items-center justify-center overflow-hidden">
+                      {lp.thumbnail ? (
+                        <img
+                          src={lp.thumbnail}
+                          alt={lp.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-gray-400 text-4xl">🎵</span>
+                      )}
+                    </div>
+                    <div className="p-3 text-white">
+                      <h3 className="font-semibold truncate">{lp.title}</h3>
+                      <p className="text-xs text-gray-400 truncate">
+                        {lp.content}
+                      </p>
+                    </div>
                   </div>
-                  <div className="p-3 text-white">
-                    <h3 className="font-semibold truncate">{lp.title}</h3>
-                    <p className="text-xs text-gray-400 truncate">
-                      {lp.content}
-                    </p>
-                  </div>
-                </div>
-              ))}
+                ))}
+              {/* 추가 로딩 중일 때 스켈레톤 표시 */}
+              {isFetching &&
+                Array.from({ length: 6 }).map((_, index) => (
+                  <LpCardSkeleton key={`skeleton-${index}`} />
+                ))}
+            </div>
+          )}
+          {/* 무한 스크롤 트리거 요소 */}
+          {hasNextPage && (
+            <div ref={ref} className="h-10 flex items-center justify-center">
+              {isFetching && (
+                <div className="text-white">더 불러오는 중...</div>
+              )}
             </div>
           )}
         </>
