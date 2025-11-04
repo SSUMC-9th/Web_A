@@ -1,44 +1,125 @@
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../src/context/AuthContext";
+import { useState, useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
+import useGetInfiniteLpList from "../hooks/queries/useGetInfiniteLpList";
+import { PAGINATION_ORDER } from "../enums/common";
+import type { ResponseLpListDto } from "../src/types/lp";
+import type { Lp } from "../src/types/lp";
+import { useInView } from "react-intersection-observer";
+import LpCardSkeleton from "../components/LpCard/LpCardSkeleton";
+interface OutletContextType {
+  order: "asc" | "desc";
+  showSearch: boolean;
+}
 
 const HomePage = () => {
-  const navigate = useNavigate();
-  const { accessToken } = useAuth();
+  const { order, showSearch } = useOutletContext<OutletContextType>();
+  const [search, setSearch] = useState("");
+
+  //const { data, isPending, isError, error } = useGetLpList({ -> 무한스크롤 구현 위해 주석 처리.
+  // search,
+  // order: order === "asc" ? PAGINATION_ORDER.asc : PAGINATION_ORDER.desc,
+  // limit: 50,
+  //});
+
+  const {
+    data: lps,
+    isFetching,
+    hasNextPage,
+    isPending,
+    fetchNextPage,
+    isError,
+    error,
+  } = useGetInfiniteLpList(
+    20, // 초기 로딩 속도에 영향을 줆.
+    search,
+    order === "asc" ? PAGINATION_ORDER.asc : PAGINATION_ORDER.desc
+  );
+
+  // ref, inView
+  // ref -> 특정한 HTML 요소를 감시할 수 있다.
+  // inView -> 그 요소가 화면에 보이면 true
+  const { ref, inView } = useInView({
+    threshold: 0,
+  });
+
+  useEffect(() => {
+    if (inView && !isFetching && hasNextPage) {
+      //
+      fetchNextPage();
+    }
+  }, [inView, isFetching, hasNextPage, fetchNextPage]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* 메인 콘텐츠 */}
-      <main className="flex-1 flex items-center justify-center">
-        <div className="text-center">
-          <div className="bg-white p-8 rounded-lg shadow-md max-w-md mx-auto">
-            <p className="text-gray-600 mb-6">홈페이지입니다.</p>
+    <div className="min-h-full p-4">
+      {showSearch && (
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="제목으로 검색..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-gray-600"
+          />
+        </div>
+      )}
 
-            <div className="space-y-4">
-              {accessToken ? (
-                <div>
-                  <p className="text-green-600 mb-4"> 로그인된 상태입니다!</p>
-                  <button
-                    onClick={() => navigate("/mypage")}
-                    className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-md transition-colors duration-200 w-full"
+      {isError && <div className="text-white">Error: {error?.message}</div>}
+
+      {isPending ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          {Array.from({ length: 12 }).map((_, index) => (
+            <LpCardSkeleton key={index} />
+          ))}
+        </div>
+      ) : (
+        <>
+          {!lps?.pages || lps.pages.length === 0 ? (
+            <div className="text-white">데이터가 없습니다.</div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {lps.pages
+                ?.map((page: ResponseLpListDto) => page.data.data)
+                ?.flat()
+                ?.map((lp: Lp) => (
+                  <div
+                    key={lp.id}
+                    className="bg-gray-800 rounded-lg overflow-hidden"
                   >
-                    마이페이지로 이동
-                  </button>
-                </div>
-              ) : (
-                <div>
-                  <p className="text-gray-500 mb-4">로그인이 필요합니다.</p>
-                  <button
-                    onClick={() => navigate("/login")}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-md transition-colors duration-200 w-full"
-                  >
-                    로그인하기
-                  </button>
-                </div>
+                    <div className="aspect-square bg-gray-700 flex items-center justify-center overflow-hidden">
+                      {lp.thumbnail ? (
+                        <img
+                          src={lp.thumbnail}
+                          alt={lp.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-gray-400 text-4xl">🎵</span>
+                      )}
+                    </div>
+                    <div className="p-3 text-white">
+                      <h3 className="font-semibold truncate">{lp.title}</h3>
+                      <p className="text-xs text-gray-400 truncate">
+                        {lp.content}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              {/* 추가 로딩 중일 때 스켈레톤 표시 */}
+              {isFetching &&
+                Array.from({ length: 6 }).map((_, index) => (
+                  <LpCardSkeleton key={`skeleton-${index}`} />
+                ))}
+            </div>
+          )}
+          {hasNextPage && (
+            <div ref={ref} className="h-10 flex items-center justify-center">
+              {isFetching && (
+                <div className="text-white">더 불러오는 중...</div>
               )}
             </div>
-          </div>
-        </div>
-      </main>
+          )}
+        </>
+      )}
     </div>
   );
 };

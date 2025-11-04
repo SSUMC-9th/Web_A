@@ -1,3 +1,5 @@
+import type { PAGINATION_ORDER } from "../../enums/common";
+
 export type CommonResponse<T> = {
   success: boolean;
   message: string;
@@ -47,3 +49,16 @@ export type ResponseMyInfoDto = CommonResponse<{
   createdAt: Date;
   updatedAt: Date;
 }>;
+
+export type CursorBasedResponse<T> = CommonResponse<{
+  data: T;
+  nextCursor: number | null;
+  hasNext: boolean;
+}>;
+
+export type PaginationDto = {
+  cursor?: number;
+  limit?: number;
+  search?: string;
+  order?: PAGINATION_ORDER;
+};
