@@ -21,8 +21,6 @@ export default function HomeLayout () {
     // 오버레이 : 모바일(협소)이거나, 데탑이어도 홈/lp목록이 아닐때 표시
     const showOverlay = open && (isNarrow || !(isHome || isLpsList));
 
-    const shouldOpen = !hideSidebar && !isNarrow && (isHome || isLpsList);
-
     useEffect(() => {
         const mq = window.matchMedia("(max-width: 1023.98px)");
         
@@ -40,15 +38,11 @@ export default function HomeLayout () {
     }, []);
 
     useEffect(() => {
-        if (shouldOpen) {
-            setOpen(true);
-        }
-
         if (isNarrow)setOpen(false);
         else {
             // 데스크톱: 홈/목록이면 자동 오픈, 상세 등은 기존 상태 유지
             const isHomeOrList = isHome || isLpsList;
-            setOpen(prev => (isHomeOrList ? true : prev));
+            setOpen(!hideSidebar && isHomeOrList);
         }
     }, [isNarrow, pathname, hideSidebar, isHome, isLpsList]);
     
@@ -68,7 +62,7 @@ export default function HomeLayout () {
         <div className="h-dvh flex flex-col bg-gray-900 text-white">
 
             {/* 헤더 */}
-            <header className={`flex relative z-[80] items-center justify-between px-5 h-14 border-b border-gray-800 ${mainLeftPad}`}>
+            <header className={`flex relative z-80 items-center justify-between px-5 h-14 border-b border-gray-800 ${mainLeftPad}`}>
                 { !hideSidebar ? (
                     <button
                         aria-label={open ? "close sidebar" : "open sidebar"}
@@ -118,14 +112,14 @@ export default function HomeLayout () {
                 <>
                     {showOverlay && (
                         <div
-                            className="fixed inset-0 z-[60] bg-black/40"
+                            className="fixed inset-0 z-60 bg-black/40"
                             onClick={() => setOpen(false)}
                         />
                     )}
 
                     <aside
                         className={[
-                            "fixed z-[70] top-0 left-0 h-full w-64 bg-black/90 border-r border-gray-800 p-4 transform transition-transform duration-200",
+                            "fixed z-70 top-0 left-0 h-full w-64 bg-black/90 border-r border-gray-800 p-4 transform transition-transform duration-200",
                             open ? "translate-x-0" : "-translate-x-full",
                                 // 데스크톱에서는 기본 펼침이면 항상 보이도록
                             // shouldOpen ? "lg:translate-x-0" : "",
@@ -156,7 +150,7 @@ export default function HomeLayout () {
             
 
             {/* 메인 */}
-            <main className={`flex-1 overflow-y-auto ${mainLeftPad}`}>
+            <main id="app-scroll" className={`flex-1 overflow-y-auto ${mainLeftPad}`}>
                 <div className="max-w-6xl mx-auto p-4 md:p-8">
                     <Outlet />
                 </div>

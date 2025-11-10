@@ -3,6 +3,9 @@ import type { RequestSigninDto } from "../types/auth";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { LOCAL_STORAGE_KEY } from "../constants/key";
 import { getMyInfo, postLogout, postSignin } from "../apis/auth";
+import { api } from "../apis/axios";
+import { useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 
 interface AuthContextType {
     accessToken : string | null;
@@ -23,7 +26,6 @@ export const AuthContext = createContext<AuthContextType>({
     isLoggedIn: false,
     socialLogin: ()=>{},
 });
-
 
 export const AuthProvider = ({children}:PropsWithChildren) => {
     const [accessToken, setAccessToken] = useLocalStorage<string | null>(
@@ -70,13 +72,20 @@ export const AuthProvider = ({children}:PropsWithChildren) => {
         }
     };
 
+    const qc = useQueryClient();
+    let shouldShowSuccess = true;
     const logout = async() => {
+        
         try {
             await postLogout();
         }
         catch(error) {
-            console.error("로그아웃 오류", error);
-            alert("로그아웃 실패")
+            if (axios.isAxiosError(error) && error.response?.status === 401 ) {
+                shouldShowSuccess = true;
+            } else {
+                console.error("로그아웃 오류", error);
+                shouldShowSuccess = false;
+            }
         }
         finally {
             setAccessToken(null);
@@ -85,8 +94,13 @@ export const AuthProvider = ({children}:PropsWithChildren) => {
 
             localStorage.removeItem(LOCAL_STORAGE_KEY.ACCESS_TOKEN);
             localStorage.removeItem(LOCAL_STORAGE_KEY.REFRESH_TOKEN);
+            delete api.defaults.headers.common.Authorization;
 
-            alert("로그아웃 성공");
+            await qc.cancelQueries();
+            qc.clear();
+
+            if (shouldShowSuccess) alert("로그아웃 성공");
+            else alert("로그아웃 실패");
             window.location.href ="/";
         }
     };

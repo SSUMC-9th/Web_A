@@ -29,13 +29,15 @@ const router = createBrowserRouter([
 
       { path: 'lps', element: <LpListPage /> },
       { path: 'lp/new', element: <LpNewPage /> },
+      { path: 'lp/:lpid', element: <LpDetailPage /> },
       {
         element: <ProtectedRoute />,
         children: [
           { path: 'mypage', element: <MyPage />},
+          
         ],
       },
-      { path: 'lp/:lpid', element: <LpDetailPage /> },
+      
     ],
   }
 ]);
@@ -56,7 +58,7 @@ function App() {
         <AuthProvider>
           <RouterProvider router={router} />
         </AuthProvider>
-        {import.meta.env.PROD && <ReactQueryDevtools initialIsOpen={false} /> }
+        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} /> }
       </QueryClientProvider>
     </GoogleOAuthProvider>
   )

@@ -18,7 +18,7 @@ const toClient = (d: ResponseLpListDto["data"]["data"][number]) : LpClient => ({
   title : d.title,
   body: d.content,
   thumbnailUrl: d.thumbnail ?? null,
-  likes: d.likes.length ?? 0,
+  likes: Array.isArray(d.likes) ? d.likes.length : 0,
   createdAt: String(d.createdAt),
   updatedAt: String(d.updatedAt),
 });
@@ -31,10 +31,12 @@ export const getLpListClient = async (
   });
   const dto = response.data;
 
+  const payload = dto.data;
+
   return {
-    data: dto.data.data.map(toClient),
-    nextCursor: dto.nextCursor ?? null,
-    hasNext: dto.hasNext ?? false,
+    data: payload.data.map(toClient),
+    nextCursor: payload.nextCursor ?? null,
+    hasNext: !!payload.hasNext,
   };
 };
 

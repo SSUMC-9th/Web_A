@@ -16,7 +16,6 @@ export type CursorBasedResponse<T> = {
     hasNext: boolean;
 }
 
-
 export type PaginationDto = {
     cursor?: number;
     limit?: number;

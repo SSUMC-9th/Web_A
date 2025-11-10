@@ -1,6 +1,11 @@
-import axios, { AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
+import axios, { AxiosError, type AxiosRequestConfig } from "axios";
 import { LOCAL_STORAGE_KEY } from "../constants/key";
 
+declare module "axios" {
+    export interface AxiosRequestConfig {
+        withAuth?: boolean;
+    }
+}
 // 일반 API 인스턴스
 export const api = axios.create({
     baseURL: import.meta.env.VITE_SERVER_API_URL,
@@ -31,38 +36,53 @@ const processQueue = (error:unknown, token: string | null = null) => {
     failedQueue = [];
 }
 
-// 요청 인터셉터 (Access Token 자동 첨부함)
+// 요청 인터셉터
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem(LOCAL_STORAGE_KEY.ACCESS_TOKEN);
-    if (token && token !== "undefined" && token !== "null") {
-        config.headers = config.headers ?? {};
-        config.headers.Authorization = `Bearer ${token}`;
+    const needAuth = config.withAuth === true;
+    if (needAuth) {
+        const token = localStorage.getItem(LOCAL_STORAGE_KEY.ACCESS_TOKEN);
+        if (token && token !== "undefined" && token !== "null") {
+            config.headers = config.headers ?? {};
+            config.headers.Authorization = `Bearer ${token}`;
+        }
     }
+    
     return config;
 });
 
 // 응답 인터셉터 (401 감지 -> 토큰 재발급 시도)
 api.interceptors.response.use(
-    (response: AxiosResponse) => response,
+    (response) => response,
     async (error: AxiosError) => {
         const originalRequest=  error.config as AxiosRequestConfig & { _retry?:boolean};
 
-        const status = error.response?.status ?? 0;
-        const url = originalRequest?.url || "";
+        const status = error.response?.status;
+        const url = originalRequest?.url ?? "";
 
         if (url.includes("/v1/auth/refresh")) {
             return Promise.reject(error);   // refresh 자체 401이면 바로 실패 처리
         }
-        
+
+        if (!originalRequest.withAuth) {
+            return Promise.reject(error);
+        }
+
+        const refreshToken = localStorage.getItem(LOCAL_STORAGE_KEY.REFRESH_TOKEN);
+
         // 401이고, 이미 재시도한 요청이 아니면
         if (status === 401 && !originalRequest._retry) {
+            // refreshToken 없으면 재발급 시도 안 함
+            if (!refreshToken || refreshToken === "undefined" || refreshToken === "null") {
+                return Promise.reject(error);
+            }
+
             // 이미 다른 요청이 refresh 중이면 대기
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
                     failedQueue.push({
                         resolve: (token: string) => {
                             originalRequest.headers = originalRequest.headers ?? {};
-                                (originalRequest.headers).Authorization = `Bearer ${token}`;
+                            originalRequest.headers.Authorization = `Bearer ${token}`;
                             resolve(api(originalRequest));
                         },
                         reject,
@@ -74,15 +94,6 @@ api.interceptors.response.use(
             isRefreshing = true;
 
             try {
-                const rawRefresh = localStorage.getItem(LOCAL_STORAGE_KEY.REFRESH_TOKEN);
-                const refreshToken =
-                    rawRefresh &&
-                    rawRefresh !== "undefined" &&
-                    rawRefresh !== "null" ? rawRefresh : null;
-                if (!refreshToken) {
-                    throw new Error("Refresh Token이 없습니다.");
-                }
-
                 // 리프레시 전용 인스턴스로 토큰 재발급 요청
                 const refreshResponse = await refreshApi.post(
                     "/v1/auth/refresh",
@@ -93,8 +104,8 @@ api.interceptors.response.use(
                     } }
                 );
 
-                const newAccessToken = refreshResponse.data?.data?.accessToken as | string | undefined;
-                const newRefreshToken = refreshResponse.data?.data?.refreshToken as | string | undefined;
+                const newAccessToken = refreshResponse.data?.data?.accessToken;
+                const newRefreshToken = refreshResponse.data?.data?.refreshToken;
 
                 if (!newAccessToken) throw new Error("반환된 Access Token이 없습니다.");
 
@@ -118,8 +129,7 @@ api.interceptors.response.use(
                 console.warn("토큰 재발급 실패. 로그아웃합니다.")
                 localStorage.removeItem(LOCAL_STORAGE_KEY.ACCESS_TOKEN);
                 localStorage.removeItem(LOCAL_STORAGE_KEY.REFRESH_TOKEN);
-                alert("세션 만료. 다시 로그인해주세요.");
-                window.location.href = "/login"
+                
                 return Promise.reject(err);
             }
             finally {
