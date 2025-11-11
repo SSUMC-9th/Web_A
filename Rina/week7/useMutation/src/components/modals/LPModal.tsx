@@ -96,7 +96,7 @@ export default function LPModal({open, onClose, editTargetId, initial}: Props) {
         },
     });
     
-    const disabled = !title.trim() || !content.trim() || createMuta.isPending || editMuta.isPending;
+    const disabled = title.trim().length < 1 || content.trim().length < 1 || createMuta.isPending || editMuta.isPending;
 
     const submit = () => (isEdit ? editMuta.mutate() : createMuta.mutate());
 
@@ -106,9 +106,9 @@ export default function LPModal({open, onClose, editTargetId, initial}: Props) {
         <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50">
             <div ref={dialogRef} className="w-[560px] max-w-[calc(100%-2rem)] rounded-2xl bg-[#2b2f36] p-6 shadow-xl relative">
                 <button
-                    aria-label="clase"
+                    aria-label="close"
                     onClick={onClose}
-                    className="absolute right-4 top-3 text-gray-300 hover:text-white"
+                    className="absolute right-4 top-3 text-gray-300 hover:text-white cursor-pointer"
                 >
                     ✕
                 </button>
@@ -172,7 +172,7 @@ export default function LPModal({open, onClose, editTargetId, initial}: Props) {
                                 {t}
                                 <button
                                     onClick={() => removeTag(t)}
-                                    className="text-gray-300 hover:text-white"
+                                    className="text-gray-300 hover:text-white cursor-pointer"
                                 >
                                     ✕
                                 </button>
@@ -184,7 +184,7 @@ export default function LPModal({open, onClose, editTargetId, initial}: Props) {
                 <button
                     disabled={disabled}
                     onClick={submit}
-                    className={`mt-3 w-full rounded-md px-4 py-3 font-semibold ${disabled ? "bg-gray-500 text-gray-300" : "bg-pink-600 hover:bg-pink-500 text-white"}`}
+                    className={`mt-3 w-full rounded-md px-4 py-3 font-semibold cursor-pointer ${disabled ? "bg-gray-500 text-gray-300" : "bg-pink-600 hover:bg-pink-500 text-white"}`}
                 >
                     {isEdit ? "저장" : "추가"}
                 </button>

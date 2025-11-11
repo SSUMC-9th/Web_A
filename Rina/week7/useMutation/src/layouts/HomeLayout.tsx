@@ -6,6 +6,8 @@ import LPModal from "../components/modals/LPModal";
 import { useMutation} from "@tanstack/react-query";
 import { postLogout } from "../apis/auth";
 import { deleteMe } from "../apis/user";
+import { LOCAL_STORAGE_KEY } from "../constants/key";
+import ConfirmModal from "../components/modals/ConfirmModal";
 
 export default function HomeLayout () {
     const [open, setOpen] = useState(false);
@@ -13,6 +15,7 @@ export default function HomeLayout () {
     const navigate = useNavigate();
     const {pathname} = useLocation();
     const [lpModalOpen, setLpModalOpen] = useState(false);
+    const [loginNeedOpen, setLoginNeedOpen] = useState(false);
 
     const [isNarrow, setIsNarrow] = useState<boolean>(
         typeof window !== "undefined" ? window.innerWidth < 1024 : true
@@ -37,6 +40,7 @@ export default function HomeLayout () {
             window.location.href = "/login";
         }
     })
+    const [leaveOpen, setLeaveOpen] = useState(false);
 
     // 오버레이 : 모바일(협소)이거나, 데탑이어도 홈/lp목록이 아닐때 표시
     const showOverlay = open && (isNarrow || !(isHome || isLpsList));
@@ -48,13 +52,9 @@ export default function HomeLayout () {
         const onChange = (e: MediaQueryListEvent) => apply(e.matches);
 
         apply(mq.matches);
-        if (mq.addEventListener) mq.addEventListener("change", onChange);
-        else mq.addListener(onChange); // fallback
+        mq.addEventListener("change", onChange);
 
-        return () => {
-            if (mq.removeEventListener) mq.removeEventListener("change", onChange);
-            else mq.removeListener(onChange); // fallback
-        };
+        return () => mq.removeEventListener("change", onChange);
     }, []);
 
     useEffect(() => {
@@ -130,7 +130,7 @@ export default function HomeLayout () {
             {/* 사이드바 + 오버레이 */}
             {!hideSidebar && (
                 <>
-                    {showOverlay && (
+                    {showOverlay && !leaveOpen && (
                         <div
                             className="fixed inset-0 z-60 bg-black/40"
                             onClick={() => setOpen(false)}
@@ -160,8 +160,9 @@ export default function HomeLayout () {
                             <button
                                 className="text-xs text-gray-500"
                                 onClick={() => {
-                                    const yes = window.confirm("정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.");
-                                    if (yes) deleteMuta.mutate();
+                                    // 사이드바 먼저 닫고 모달 열기
+                                    setOpen(false);
+                                    setLeaveOpen(true)
                                 }}
                             >탈퇴하기</button>
                         </div>
@@ -180,7 +181,14 @@ export default function HomeLayout () {
             
             {/* FAB 플로팅 버튼 */}
             <button
-                onClick={()=> setLpModalOpen(true)}
+                onClick={()=> {
+                    const token = localStorage.getItem(LOCAL_STORAGE_KEY.ACCESS_TOKEN);
+                    if(!token) {
+                        setLoginNeedOpen(true);
+                        return;
+                    }
+                    setLpModalOpen(true);
+                }}
                 aria-label="add lp"
                 className="fixed bottom-6 right-6 w-12 h-12 flex items-center justify-center leading-none rounded-full bg-pink-500 text-white text-2xl shadow-lg hover:scale-105 active:scale-95"
             >
@@ -189,7 +197,24 @@ export default function HomeLayout () {
 
             <LPModal open={lpModalOpen} onClose={() => setLpModalOpen(false)} />
 
+            {/* 로그인 필요 모달 */}
+            <ConfirmModal
+                open={loginNeedOpen}
+                onClose={() => setLoginNeedOpen(false)}
+                single
+                message="LP를 추가하려면 로그인해 주세요."
+            />
 
+            {/* 탈퇴 확인 모달 */}
+            <ConfirmModal
+                open={leaveOpen}
+                onClose={() => setLeaveOpen(false)}
+                message="정말 탈퇴하시겠습니까?"
+                onConfirm={() => {
+                    setLeaveOpen(false)
+                    deleteMuta.mutate();
+                }}
+            />
         </div>
     );
 }

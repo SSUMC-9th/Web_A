@@ -6,10 +6,10 @@ export type Tag = {
 export type Likes = {
     id?: number;
     userId?: number;
-    lpid?: number;
+    lpId?: number;
 };
 
-
+// 서버에서 내려오는 lp
 export type LpServer = {
     id: number;
     title: string;
@@ -23,6 +23,7 @@ export type LpServer = {
     likes: Likes[];
 };
 
+//프론트에서 사용하는 lpclient
 export type LpClient = {
     id: number;
     title: string;
@@ -33,14 +34,21 @@ export type LpClient = {
     updatedAt: string;
 };
 
+// 상세페이지 전용 lpdetailclient
 export type LpDetailClient = LpClient & {
     tags: Tag[];
     likesList: Likes[];
 }
+
+// 요청
 export type RequestLpDto = {
     lpid: number;
 
 }
+
+// 응답
+
+// 리스트 응답
 export type ResponseLpListDto = {
     status:  boolean;
     message: string;
@@ -54,6 +62,7 @@ export type ResponseLpListDto = {
     hasNext?: boolean;
 };
 
+// 상세 응답
 export type ResponseLpDetailDto = {
     status: boolean;
     message: string;

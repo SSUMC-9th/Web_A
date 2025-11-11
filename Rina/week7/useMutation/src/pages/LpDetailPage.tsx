@@ -8,6 +8,12 @@ import LinesSkeleton from "../components/skeletons/LinesSkeleton";
 import { useAuth } from "../context/AuthContext";
 import { QUERY_KEY } from "../constants/key";
 import LPModal from "../components/modals/LPModal";
+import type { Likes, LpDetailClient } from "../types/lp";
+import { api, type ApiError } from "../apis/axios";
+import { getMyInfo } from "../apis/auth";
+import type { CommonResponse } from "../types/common";
+
+type LikeCtx = {prev?: LpDetailClient};
 
 export default function LpDetailPage() {
   const { lpid } = useParams<{lpid: string}>();
@@ -86,6 +92,13 @@ export default function LpDetailPage() {
     () => (cmtPages ? cmtPages.pages.flatMap((p) => p.data) : []),
     [cmtPages]
   );
+
+  const {data: meRes} = useQuery({
+    queryKey: ["me"],
+    queryFn: getMyInfo,
+    staleTime: 60_000,
+  });
+  const meId: number | null = (meRes?.data?.id ?? null) as number | null;
 
   
   // 댓글 작성(생성) mutation
@@ -168,6 +181,82 @@ export default function LpDetailPage() {
   }, [ rootEl, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
 
+  // 좋아요
+  const likedByMe = useMemo(() => {
+    if (!lp || !meId) return false;
+    return lp.likesList.some(lk => lk.userId === meId);
+  }, [lp, meId]);
+
+  // 좋아요 추가
+  const addLikeMuta = useMutation<CommonResponse<Likes>, ApiError, void, LikeCtx>({
+    mutationFn: async () => {
+      if (!meId) throw new Error("Unauthorized");
+      return api
+        .post(`/v1/lps/${lpid}/likes`, {}, { withAuth: true })
+        .then(r => r.data as CommonResponse<Likes>);
+    },
+
+    onMutate: async (): Promise<LikeCtx> => {
+      await qc2.cancelQueries({ queryKey: ["lp", lpid] });
+      const prev = qc2.getQueryData<LpDetailClient>(["lp", lpid]);
+
+      if (prev && meId) {
+        const next: LpDetailClient = {
+          ...prev,
+          likes: prev.likes + 1,
+          likesList: [...prev.likesList,
+            { id: -Date.now(), userId: meId, lpId: Number(lpid) }],
+        };
+        qc2.setQueryData(["lp", lpid], next);
+      }
+      return { prev };
+    },
+
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) qc2.setQueryData(["lp", lpid], ctx.prev);
+    },
+
+    onSettled: () => {
+      qc2.invalidateQueries({ queryKey: ["lp", lpid] });
+    },
+  });
+
+  // 좋아요 삭제
+  const removeLikeMuta = useMutation<CommonResponse<Likes>, ApiError, void, LikeCtx>({
+    mutationFn: async () => {
+      if (!meId) throw new Error("Unauthorized");
+      return api
+        .delete(`/v1/lps/${lpid}/likes`, { withAuth: true })
+        .then(res => res.data as CommonResponse<Likes>);
+    },
+
+    onMutate: async (): Promise<LikeCtx> => {
+      await qc2.cancelQueries({ queryKey: ["lp", lpid] });
+
+      const prev = qc2.getQueryData<LpDetailClient>(["lp", lpid]);
+
+      if (prev && meId) {
+        const next: LpDetailClient = {
+          ...prev,
+          likes: Math.max(0, prev.likes - 1),
+          likesList: prev.likesList.filter(lk => lk.userId !== meId),
+        };
+
+        qc2.setQueryData(["lp", lpid], next);
+      }
+
+      return { prev };
+    },
+
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) qc2.setQueryData(["lp", lpid], ctx.prev);
+    },
+
+    onSettled: () => {
+      qc2.invalidateQueries({ queryKey: ["lp", lpid] });
+    },
+  });
+
   // 컨텐츠가 짧아 화면을 못 채울 때 초기에 한번 밀어주기??
   useEffect(() => {
     if (isCmtPending || isFetchingNextPage || !hasNextPage) return;
@@ -228,8 +317,17 @@ export default function LpDetailPage() {
           onClick={() => delMut.mutate()} disabled={delMut.isPending}>
           삭제</button>
         <button className="px-3 py-1 bg-pink-600 hover:bg-pink-500"
+          onClick={() => {
+            if (!meId) {
+              alert("로그인이 필요합니다.");
+              return;
+            }
+            if (likedByMe) removeLikeMuta.mutate();
+            else addLikeMuta.mutate();
+          }}
           >
-          좋아요</button>
+            {likedByMe ? "좋아요 취소" : "좋아요"}
+          </button>
       </footer>
 
       {/* 댓글 */}

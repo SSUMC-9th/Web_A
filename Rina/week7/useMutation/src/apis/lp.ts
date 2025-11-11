@@ -70,15 +70,29 @@ export type CreateLpBody = {
 };
 
 export const createLp = async (body: CreateLpBody) => {
-  const {data} = await api.post("/v1/lps", body, {
+  // 서버가 JSON을 받되, 빈 필드는 제외
+  const payload: Record<string, unknown> = {};
+  if (body.title?.trim()) payload.title = body.title.trim();
+  if (body.content?.trim()) payload.content = body.content.trim();
+  if (body.thumbnail !== undefined) payload.thumbnail = body.thumbnail ?? null;
+  if (Array.isArray(body.tags) && body.tags.length > 0) payload.tags = body.tags;
+  if (body.published !== undefined) payload.published = body.published;
+
+  const {data} = await api.post("/v1/lps", payload, {
     withAuth: true,
   });
   return data;
 };
 
 export const updateLp = async (lpid : number, body: Partial<CreateLpBody>) => {
+  const payload: Record<string, unknown> = {};
+  if (body.title !== undefined) payload.title = body.title?.trim() ?? "";
+  if (body.content !== undefined) payload.content = body.content?.trim() ?? "";
+  if (body.thumbnail !== undefined) payload.thumbnail = body.thumbnail ?? null;
+  if (body.tags !== undefined) payload.tags = body.tags;
+  if (body.published !== undefined) payload.published = body.published;
 
-  const {data} = await api.patch(`/v1/lps/${lpid}`, body, {
+  const {data} = await api.patch(`/v1/lps/${lpid}`, payload, {
     withAuth: true, 
   });
   return data;

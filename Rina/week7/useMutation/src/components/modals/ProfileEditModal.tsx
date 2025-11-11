@@ -1,12 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { patchMe } from "../../apis/user";
+import type { ResponseMyInfoDto } from "../../types/auth";
+import type { ApiError } from "../../apis/axios";
 
 type Props = {
     open: boolean;
     onClose: () => void;
     initial?: { name?: string; bio?: string | null};
 };
+type MeData = ResponseMyInfoDto["data"];
+type NicknameUpdateDetail = {name:string | null};
+type Ctx = {prev?: MeData};
 
 export default function ProfileEditModal({ open, onClose, initial}: Props) {
     const qc = useQueryClient();
@@ -14,6 +19,7 @@ export default function ProfileEditModal({ open, onClose, initial}: Props) {
     const [bio, setBio] = useState(initial?.bio ?? "");
     const [file, setFile] = useState<File | null>(null);
     const boxRef = useRef<HTMLDivElement | null>(null);
+    
 
     useEffect(() => {
         if (!open) return;
@@ -33,13 +39,42 @@ export default function ProfileEditModal({ open, onClose, initial}: Props) {
         }
     }, [open, initial]);
 
-    const mut =useMutation({
+    const mut =useMutation<ResponseMyInfoDto, ApiError, void, Ctx>({
         mutationFn: () => patchMe({ name: name || undefined, bio, avatarFile: file ?? undefined}),
-        onSuccess: async() => {
-            await qc.invalidateQueries({queryKey: ["me"]});
-            onClose();
+        // 낙관적 업뎃
+        onMutate: async () : Promise<Ctx> => {
+            await qc.cancelQueries({ queryKey: ["me"]});
+            const prev = qc.getQueryData<MeData>(["me"]);
+
+            // me 캐시 즉시 닉네임 변경ㅇ
+            if (prev) {
+                const next = { ...prev, name: name?.trim() ?? prev.name };
+                qc.setQueryData<MeData>(["me"], next);
+            }
+
+            window.dispatchEvent(
+                new CustomEvent<NicknameUpdateDetail>("me:nickname:update", {
+                    detail: {name: name?.trim() ?? null},
+                })
+            );
+            return {prev};
         },
-    });
+
+        onError: (_err, _vars, ctx) => {
+            if (ctx?.prev) qc.setQueryData<MeData>(["me"], ctx.prev);
+                const prevName = ctx?.prev?.name ?? null;
+                window.dispatchEvent(
+                new CustomEvent<NicknameUpdateDetail>("me:nickname:update", {
+                    detail: { name: prevName },
+                })
+            );
+        },
+
+        onSettled: async() => await qc.invalidateQueries({queryKey:["me"]}),
+
+        onSuccess: ()=> onClose()
+        },
+    );
 
     if (!open) return null;
 
@@ -50,7 +85,7 @@ export default function ProfileEditModal({ open, onClose, initial}: Props) {
                 className="w-[520px] max-w-[calc(100%-2rem)] rounded-2xl bg-[#2b2f36] p-6 shadow-xl relative"
             >
                 <button
-                    className="absolute right-4 top-3 text-gray-300 hover:text-white"
+                    className="absolute right-4 top-3 text-gray-300 hover:text-white cursor-pointer"
                     onClick={onClose}
                 >
                     ✕
@@ -62,7 +97,7 @@ export default function ProfileEditModal({ open, onClose, initial}: Props) {
                     <input
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        placeholder="이름(선택)"
+                        placeholder="이름"
                         className="w-full rounded-md bg-[#1f2328] px-3 py-2 text-gray-200 border border-gray-600"
                     />
                     <input
