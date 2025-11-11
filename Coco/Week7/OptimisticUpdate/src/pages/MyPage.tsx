@@ -1,4 +1,3 @@
-// pages/MyPage.tsx
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useUpdateProfile } from '../hooks/useProfileMutations';
@@ -7,7 +6,7 @@ export const MyPage = () => {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState(user?.nickname || '');
-  const [bio, setBio] = useState('');
+  const [bio, setBio] = useState(user?.bio || '');
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string>('');
 
@@ -126,7 +125,11 @@ export const MyPage = () => {
               </button>
               <button
                 type="button"
-                onClick={() => setIsEditing(false)}
+                onClick={() => {
+                  setIsEditing(false);
+                  setNickname(user.nickname);
+                  setBio(user.bio || '');
+                }}
                 className="px-6 py-2 border border-gray-300 rounded hover:bg-gray-50"
               >
                 취소
@@ -143,10 +146,10 @@ export const MyPage = () => {
               <label className="text-sm font-medium text-gray-500">닉네임</label>
               <p className="text-lg">{user.nickname}</p>
             </div>
-            {bio && (
+            {user.bio && (
               <div>
                 <label className="text-sm font-medium text-gray-500">Bio</label>
-                <p className="text-lg">{bio}</p>
+                <p className="text-lg">{user.bio}</p>
               </div>
             )}
           </div>

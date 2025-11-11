@@ -1,6 +1,7 @@
-// hooks/useLpMutations.ts
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { lpApi } from '../api/lpApi';
+import type { Lp } from '../types/lp.types';
+
 
 export const useCreateLp = () => {
   const queryClient = useQueryClient();
@@ -50,13 +51,39 @@ export const useDeleteLp = () => {
     },
   });
 };
-
-export const useLikeLp = () => {
+export const useLikeLp = (lpId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => (lpApi as any).toggleLike(id),
-    onSuccess: (_, lpId) => {
+    mutationFn: () => lpApi.toggleLike(lpId),
+    
+    // 낙관적 업데이트: 서버 응답 전에 UI 즉시 변경
+    onMutate: async () => {
+      // 진행 중인 쿼리 취소 (충돌 방지)
+      await queryClient.cancelQueries({ queryKey: ['lp', lpId] });
+
+      // 이전 데이터 백업 (롤백용)
+      const previousLp = queryClient.getQueryData<Lp>(['lp', lpId]);
+
+      // 낙관적 업데이트: 좋아요 수 즉시 증가
+      queryClient.setQueryData<Lp>(['lp', lpId], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          likes: old.likes + 1,
+        };
+      });
+
+      // 롤백을 위해 이전 데이터 반환
+      return { previousLp };
+    },
+    onError: (error, variables, context) => {
+      if (context?.previousLp) {
+        queryClient.setQueryData(['lp', lpId], context.previousLp);
+      }
+      alert('좋아요 처리에 실패했습니다.');
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['lp', lpId] });
     },
   });

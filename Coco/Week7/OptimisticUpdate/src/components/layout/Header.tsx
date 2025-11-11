@@ -1,4 +1,3 @@
-// components/layout/Header.tsx
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useLogout } from '../../hooks/useAuthMutations';
@@ -16,6 +15,7 @@ export const Header = () => {
       <div className="flex items-center gap-4">
         {isAuthenticated ? (
           <>
+            {/* 닉네임이 실시간으로 업데이트됩니다 */}
             <span className="text-gray-700">
               {user?.nickname}님 반갑습니다.
             </span>
