@@ -2,14 +2,17 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import burger from "../assets/burger.svg";
 import FAB from "../components/FAB";
 import MobileSidebar from "../components/MobileSidebar";
+import Modal from "../components/Modal";
 import Sidebar from "../components/Sidebar";
 import { useAuth } from "../context/AuthContext";
 import useDisclosure from "../hooks/useDisclosure";
+import LpCreatePage from "../pages/LpCreatePage";
 
 const HomeLayout = () => {
   const location = useLocation();
   const { accessToken, userName } = useAuth();
   const { isOpen, toggle, close } = useDisclosure(true);
+  const create = useDisclosure(false);
 
   return (
     <div className="min-h-dvh flex flex-col bg-black text-white">
@@ -70,7 +73,10 @@ const HomeLayout = () => {
           <Outlet />
         </main>
       </div>
-      <FAB />
+      <FAB onClick={create.open} />
+      <Modal open={create.isOpen} onClose={create.close} title="LP 추가">
+        <LpCreatePage onDone={create.close} />
+      </Modal>
       <footer className="h-10" />
     </div>
   );

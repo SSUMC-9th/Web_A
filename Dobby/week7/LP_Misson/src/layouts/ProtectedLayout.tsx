@@ -2,13 +2,16 @@ import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import burger from "../assets/burger.svg";
 import FAB from "../components/FAB";
 import MobileSidebar from "../components/MobileSidebar";
+import Modal from "../components/Modal";
 import Sidebar from "../components/Sidebar";
 import { useAuth } from "../context/AuthContext";
 import useDisclosure from "../hooks/useDisclosure";
+import LpCreatePage from "../pages/LpCreatePage";
 
 const ProtectedLayout = () => {
   const { accessToken, userName } = useAuth();
   const { isOpen, toggle, close } = useDisclosure(true);
+  const create = useDisclosure(false);
   const location = useLocation();
   if (!accessToken) {
     return <Navigate to={"/login"} replace />;
@@ -51,7 +54,10 @@ const ProtectedLayout = () => {
           <Outlet />
         </main>
       </div>
-      <FAB />
+      <FAB onClick={create.open} />
+      <Modal open={create.isOpen} onClose={create.close} title="LP 추가">
+        <LpCreatePage onDone={create.close} />
+      </Modal>
       <footer className="h-10" />
     </div>
   );

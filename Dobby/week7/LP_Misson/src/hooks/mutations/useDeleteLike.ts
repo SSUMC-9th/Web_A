@@ -10,9 +10,9 @@ function useDeleteLike() {
     mutationFn: deleteLpLike,
     onMutate: async (lpId: number) => {
       // 상세 쿼리 키와 동일하게 맞춘다
-      await queryClient.cancelQueries({ queryKey: ["lp", lpId] });
+      await queryClient.cancelQueries({ queryKey: [QUERY_KEY.lp, lpId] });
       // 현재 게시글의 데이터를 캐시에서 가져와야 함
-      const previousLpPost = queryClient.getQueryData<ResponseLpDetailDto>(["lp", lpId]);
+      const previousLpPost = queryClient.getQueryData<ResponseLpDetailDto>([QUERY_KEY.lp, lpId]);
       //게시글 데이터 복사, NewLpPost라는 새로운 객체 만들기
       //복사 -> 나중에 오류가 발생했을 때 이전 상태로 되돌리기 위해서 이다.
       const newLpPost = { ...previousLpPost };
@@ -30,15 +30,15 @@ function useDeleteLike() {
 
       //업데이트된 게시글 데이터를 캐시에 저장
       // 이렇게 하면 UI 바로 업데이트, 변화 확인 가능
-      queryClient.setQueryData(["lp", lpId], newLpPost);
+      queryClient.setQueryData([QUERY_KEY.lp, lpId], newLpPost);
       return { previousLpPost, newLpPost };
     },
     onError: (err, lpId) => {
       console.error(err, lpId);
-      void queryClient.invalidateQueries({ queryKey: ["lp", lpId as number] });
+      void queryClient.invalidateQueries({ queryKey: [QUERY_KEY.lp, lpId as number] });
     },
-    onSettled: async (_data, _error, variables) => {
-      await queryClient.invalidateQueries({ queryKey: ["lp", variables as number] });
+    onSettled: async (data, error, variables) => {
+      await queryClient.invalidateQueries({ queryKey: [QUERY_KEY.lp, variables as number] });
       await queryClient.invalidateQueries({ queryKey: [QUERY_KEY.lps, variables as number] });
     },
   });

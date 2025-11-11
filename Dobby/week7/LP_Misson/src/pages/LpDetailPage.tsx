@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import CommentsSection from "../components/CommentsSection";
 import ErrorView from "../components/ErrorView";
 import Spinner from "../components/Spinner";
 import { useAuth } from "../context/AuthContext";
@@ -74,6 +75,7 @@ const LpDetailPage = () => {
           </button>
         )}
       </div>
+      <CommentsSection lpId={lpId} />
     </div>
   );
 };

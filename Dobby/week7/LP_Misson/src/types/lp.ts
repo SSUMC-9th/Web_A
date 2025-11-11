@@ -1,4 +1,4 @@
-import type { CommonResponse, CurosrBasedResponse } from "./common";
+import type { CommonResponse, CursorBasedResponse } from "./common";
 
 export type Tag = {
   id: number;
@@ -11,7 +11,7 @@ export type Like = {
   lpId: number;
 };
 
-export type ResponseLpListDto = CurosrBasedResponse<{
+export type ResponseLpListDto = CursorBasedResponse<{
   data: {
     id: number;
     title: string;
@@ -44,3 +44,26 @@ export type ResponseLikeLpDto = CommonResponse<{
   userId: number;
   lpId: number;
 }>;
+
+export type Comment = {
+  id: number;
+  userId: number;
+  lpId: number;
+  content: string;
+  createdAt: Date;
+};
+
+export type ResponseCommentListDto = CursorBasedResponse<{
+  data: Comment;
+}>;
+
+export type ResponseCommentDto = CommonResponse<Comment>;
+
+// LP 생성 요청 바디 (Swagger 스펙 기준)
+export type CreateLpBody = {
+  title: string;
+  content?: string;
+  thumbnail: string;
+  tags?: string[];
+  published?: boolean;
+};

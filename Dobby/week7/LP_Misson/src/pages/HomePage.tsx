@@ -88,7 +88,7 @@ const HomePage = () => {
                 title={lp.title}
                 thumbnail={lp.thumbnail}
                 createdAt={lp.createdAt}
-                likesCount={(lp.likes as unknown[]).length}
+                likesCount={Array.isArray(lp.likes) ? lp.likes.length : 0}
               />
             ))}
           </div>
