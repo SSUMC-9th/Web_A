@@ -8,7 +8,8 @@ import { useInView } from "react-intersection-observer";
 import LpCardSkeleton from "../components/LpCard/LpCardSkeleton";
 import LpDetailModal from "../components/LpDetailModal";
 import useDebounce from "../hooks/useDebounce";
-import { DEBOUNCE_DELAY } from "../constants/debounceDelay";
+import useThrottle from "../hooks/queries/useThrottle";
+import { DEBOUNCE_DELAY, THROTTLE_DELAY } from "../constants/Delay";
 import React from "react";
 
 interface OutletContextType {
@@ -48,13 +49,23 @@ const HomePage = () => {
   const { ref, inView } = useInView({
     threshold: 0,
   });
+  const throttledInView = useThrottle(inView, THROTTLE_DELAY);
 
-  useEffect(() => {
-    if (inView && !isFetching && hasNextPage) {
-      //
-      fetchNextPage();
-    }
-  }, [inView, isFetching, hasNextPage, fetchNextPage]);
+  useEffect(
+    () => {
+      //if (inView && !isFetching && hasNextPage) { ->
+      if (throttledInView && !isFetching && hasNextPage) {
+        //
+        fetchNextPage();
+      }
+    },
+    /*[inView, isFetching, hasNextPage, fetchNextPage] -> */ [
+      throttledInView,
+      isFetching,
+      hasNextPage,
+      fetchNextPage,
+    ]
+  );
 
   return (
     <div className="relative min-h-full p-4">
