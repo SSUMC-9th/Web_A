@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import useGetInfiniteLpList from "../hooks/queries/useGetInfiniteLpList";
 import { PAGINATION_ORDER } from "../enums/common";
@@ -6,14 +6,21 @@ import type { ResponseLpListDto } from "../src/types/lp";
 import type { Lp } from "../src/types/lp";
 import { useInView } from "react-intersection-observer";
 import LpCardSkeleton from "../components/LpCard/LpCardSkeleton";
+import LpDetailModal from "../components/LpDetailModal";
+import useDebounce from "../hooks/useDebounce";
+import { DEBOUNCE_DELAY } from "../constants/debounceDelay";
+import React from "react";
+
 interface OutletContextType {
   order: "asc" | "desc";
-  showSearch: boolean;
+  searchTerm: string;
+  setSearchTerm: (value: string) => void;
 }
 
 const HomePage = () => {
-  const { order, showSearch } = useOutletContext<OutletContextType>();
-  const [search, setSearch] = useState("");
+  const { order, searchTerm } = useOutletContext<OutletContextType>();
+  const [selectedLpId, setSelectedLpId] = useState<number | null>(null);
+  const debouncedValue = useDebounce(searchTerm, DEBOUNCE_DELAY); // Week 7
 
   //const { data, isPending, isError, error } = useGetLpList({ -> 무한스크롤 구현 위해 주석 처리.
   // search,
@@ -31,7 +38,7 @@ const HomePage = () => {
     error,
   } = useGetInfiniteLpList(
     20, // 초기 로딩 속도에 영향을 줆.
-    search,
+    debouncedValue, // Week 7
     order === "asc" ? PAGINATION_ORDER.asc : PAGINATION_ORDER.desc
   );
 
@@ -50,19 +57,7 @@ const HomePage = () => {
   }, [inView, isFetching, hasNextPage, fetchNextPage]);
 
   return (
-    <div className="min-h-full p-4">
-      {showSearch && (
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="제목으로 검색..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full p-2 rounded bg-gray-800 text-white border border-gray-700 focus:outline-none focus:border-gray-600"
-          />
-        </div>
-      )}
-
+    <div className="relative min-h-full p-4">
       {isError && <div className="text-white">Error: {error?.message}</div>}
 
       {isPending ? (
@@ -83,7 +78,8 @@ const HomePage = () => {
                 ?.map((lp: Lp) => (
                   <div
                     key={lp.id}
-                    className="bg-gray-800 rounded-lg overflow-hidden"
+                    className="bg-gray-800 rounded-lg overflow-hidden cursor-pointer transition-transform hover:scale-[1.02]"
+                    onClick={() => setSelectedLpId(lp.id)}
                   >
                     <div className="aspect-square bg-gray-700 flex items-center justify-center overflow-hidden">
                       {lp.thumbnail ? (
@@ -119,6 +115,12 @@ const HomePage = () => {
             </div>
           )}
         </>
+      )}
+      {selectedLpId !== null && (
+        <LpDetailModal
+          lpId={selectedLpId}
+          onClose={() => setSelectedLpId(null)}
+        />
       )}
     </div>
   );

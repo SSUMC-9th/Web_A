@@ -137,9 +137,7 @@ export function useDeleteLike() {
               ...old,
               data: {
                 ...old.data,
-                likes: old.data.likes.filter(
-                  (like) => like.userId !== userId
-                ),
+                likes: old.data.likes.filter((like) => like.userId !== userId),
               },
             };
           }
@@ -193,4 +191,3 @@ export function useDeleteLike() {
     },
   });
 }
-

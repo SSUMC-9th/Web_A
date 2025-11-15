@@ -1,42 +1,23 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getMyInfo } from "../apis/auth.ts";
-import type { ResponseMyInfoDto } from "../src/types/common";
 import { useAuth } from "../src/context/AuthContext";
-import type { AxiosError } from "axios";
+import { Settings } from "lucide-react";
+import ProfileEditModal from "../components/ProfileEditModal";
+import useGetMyInfo from "../hooks/queries/useGetMyInfo";
+import React from "react";
 
 const MyPage = () => {
-  const { logout } = useAuth();
+  const { logout, accessToken } = useAuth();
   const navigate = useNavigate();
-  const [userInfo, setUserInfo] = useState<ResponseMyInfoDto["data"] | null>(
-    null
-  );
-  const [loading, setLoading] = useState(true);
+  const isLoggedIn = Boolean(accessToken);
+  const { data: myInfoResponse, refetch: refetchMyInfo } =
+    useGetMyInfo(isLoggedIn);
+  const userInfo = myInfoResponse?.data ?? null;
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  useEffect(() => {
-    const getData = async () => {
-      try {
-        // 토큰 확인
-        const token = localStorage.getItem("accessToken");
-        console.log("저장된 토큰:", token);
-
-        const response: ResponseMyInfoDto = await getMyInfo();
-        console.log("사용자 정보:", response);
-
-        // 사용자 정보를 state에 저장
-        setUserInfo(response.data);
-      } catch (error) {
-        const axiosError = error as AxiosError;
-        if (axiosError.response?.status !== 401) {
-          console.error("사용자 정보 가져오기 실패:", error);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getData();
-  }, []);
+  const handleUpdateSuccess = () => {
+    refetchMyInfo();
+  };
 
   const handleLogout = async () => {
     // 로그아웃 플래그 설정
@@ -51,19 +32,36 @@ const MyPage = () => {
     }, 100);
   };
 
-  if (loading) {
+  if (!myInfoResponse && isLoggedIn) {
     return <div className="text-white">로딩 중...</div>;
   }
 
   return (
-    <div className="min-h-full flex items-center justify-center">
+    <div className="relative min-h-full w-full flex items-center justify-center bg-gradient-to-b from-gray-900 via-gray-950 to-black -mt-16 -mb-20 pt-16 pb-20">
       <div className="text-center text-white">
-        <h1 className="text-2xl font-bold mb-12 mt-20">마이페이지</h1>
+        <div className="flex items-center justify-center gap-3 mb-12">
+          <h1 className="text-2xl font-bold">마이페이지</h1>
+          {userInfo && (
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="text-white hover:text-gray-300 transition-colors cursor-pointer"
+              aria-label="설정"
+              title="프로필 수정"
+            >
+              <Settings className="h-6 w-6" strokeWidth={2} />
+            </button>
+          )}
+        </div>
         {userInfo ? (
           <div className="bg-gray-800 p-10 rounded-lg shadow-md min-w-[400px]">
             <p className="mb-4 text-lg">
               <strong>이름:</strong> {userInfo.name}
             </p>
+            {userInfo.bio && (
+              <p className="mb-4 text-lg">
+                <strong>Bio:</strong> {userInfo.bio}
+              </p>
+            )}
             <p className="mb-4 text-lg">
               <strong>이메일:</strong> {userInfo.email}
             </p>
@@ -89,6 +87,15 @@ const MyPage = () => {
           <p>사용자 정보를 불러올 수 없습니다.</p>
         )}
       </div>
+
+      {userInfo && (
+        <ProfileEditModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          userInfo={userInfo}
+          onUpdateSuccess={handleUpdateSuccess}
+        />
+      )}
     </div>
   );
 };
