@@ -4,23 +4,24 @@ import Header from "./Header";
 import Footer from "./Footer";
 import React from "react";
 import Sidebar from "./Sidebar";
+import { useSidebar } from "../hooks/useSidebar";
 
 const MainLayout = () => {
   const [order, setOrder] = useState<"asc" | "desc">("desc");
   const [searchTerm, setSearchTerm] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { isOpen, open, close, toggle } = useSidebar(); // 구조분해할당
 
   return (
     <div className="min-h-screen bg-black flex flex-col">
       <Header
         currentOrder={order}
         onOrderChange={setOrder}
-        onSearchClick={() => setIsSidebarOpen(true)}
-        onMenuClick={() => setIsSidebarOpen((prev) => !prev)}
+        onSearchClick={open}
+        onMenuClick={toggle}
       />
       <Sidebar
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
+        isOpen={isOpen}
+        onClose={close}
         searchTerm={searchTerm}
         onSearchTermChange={setSearchTerm}
       />
