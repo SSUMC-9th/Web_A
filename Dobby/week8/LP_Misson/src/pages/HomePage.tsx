@@ -18,6 +18,12 @@ const HomePage = () => {
   const [order, setOrder] = useState<PAGINATION_ORDER>(PAGINATION_ORDER.desc);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
+  const [rawScrollY, setRawScrollY] = useState(0);
+  const debouncedScrollY = useDebounce(rawScrollY, 2000);
+  const canFetchRef = useRef(true);
+  useEffect(() => {
+    canFetchRef.current = rawScrollY === debouncedScrollY;
+  }, [rawScrollY, debouncedScrollY]);
   const PAGE_LIMIT = 50;
   const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetInfiniteLpList(PAGE_LIMIT, debouncedSearch, order);
@@ -35,7 +41,12 @@ const HomePage = () => {
     if (!target) return;
     const io = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+        if (
+          entries[0].isIntersecting &&
+          hasNextPage &&
+          !isFetchingNextPage &&
+          canFetchRef.current
+        ) {
           void fetchNextPage();
         }
       },
@@ -48,14 +59,19 @@ const HomePage = () => {
   // 스크롤 이벤트 백업 트리거(일부 브라우저/환경에서 IO가 동작하지 않을 때 대비)
   useEffect(() => {
     const onScroll = () => {
-      const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 300;
-      if (nearBottom && hasNextPage && !isFetchingNextPage) {
-        void fetchNextPage();
-      }
+      setRawScrollY(window.scrollY);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  }, []);
+
+  // 디바운스된 스크롤 값이 갱신될 때만 바닥 근접 판정 후 페치
+  useEffect(() => {
+    const nearBottom = window.innerHeight + debouncedScrollY >= document.body.offsetHeight - 300;
+    if (nearBottom && hasNextPage && !isFetchingNextPage) {
+      void fetchNextPage();
+    }
+  }, [debouncedScrollY, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div className="w-full">
