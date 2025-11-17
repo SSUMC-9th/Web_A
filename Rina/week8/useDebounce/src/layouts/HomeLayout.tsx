@@ -8,9 +8,9 @@ import { postLogout } from "../apis/auth";
 import { deleteMe } from "../apis/user";
 import { LOCAL_STORAGE_KEY } from "../constants/key";
 import ConfirmModal from "../components/modals/ConfirmModal";
+import useSidebar from "../hooks/useSidebar";
 
 export default function HomeLayout () {
-    const [open, setOpen] = useState(false);
     const { isLoggedIn, logout, userName} = useAuth();
     const navigate = useNavigate();
 
@@ -25,15 +25,16 @@ export default function HomeLayout () {
 
     const [lpModalOpen, setLpModalOpen] = useState(false);
     const [loginNeedOpen, setLoginNeedOpen] = useState(false);
+    const [leaveOpen, setLeaveOpen] = useState(false);
 
-    const [isNarrow, setIsNarrow] = useState<boolean>(
-        typeof window !== "undefined" ? window.innerWidth < 1024 : true
-    );
-
-    const hideSidebar = ["/login", "/signup", "/v1/auth/google/callback"].includes(pathname);
-
-    const isHome = pathname === "/";
-    const isLpsList = pathname === "/lps";
+    const {
+        open,
+        hideSidebar,
+        showOverlay,
+        mainLeftPad,
+        toggleSidebar,
+        closeSidebar,
+    } = useSidebar(pathname);
 
     const logoutMuta = useMutation({
         mutationFn: async() => { await postLogout();},
@@ -48,41 +49,7 @@ export default function HomeLayout () {
             await logout();
             window.location.href = "/login";
         }
-    })
-    const [leaveOpen, setLeaveOpen] = useState(false);
-
-    // 오버레이 : 모바일(협소)이거나, 데탑이어도 홈/lp목록이 아닐때 표시
-    const showOverlay = open && (isNarrow || !(isHome || isLpsList));
-
-    useEffect(() => {
-        const mq = window.matchMedia("(max-width: 1023.98px)");
-        
-        const apply = (matches: boolean) => setIsNarrow(matches);
-        const onChange = (e: MediaQueryListEvent) => apply(e.matches);
-
-        apply(mq.matches);
-        mq.addEventListener("change", onChange);
-
-        return () => mq.removeEventListener("change", onChange);
-    }, []);
-
-    useEffect(() => {
-        const isHomeOrList = isHome || isLpsList;
-        const nextOpen = isNarrow ? false : (!hideSidebar && isHomeOrList);
-        setOpen(prev => (prev === nextOpen ? prev : nextOpen));
-    }, [isNarrow, pathname, hideSidebar, isHome, isLpsList]);
-    
-    // 데탑에서 사이드바 펼쳣을 때 메인 겹침 방지
-    const mainLeftPad = !isNarrow && open && !hideSidebar ? "lg:pl-64": "";
-        
-     // ESC로 닫기
-    useEffect(() => {
-        function onKey(e: KeyboardEvent) {
-            if (e.key === "Escape") setOpen(false);
-        }
-        window.addEventListener("keydown", onKey);
-        return () => window.removeEventListener("keydown", onKey);
-    }, []);
+    });
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -110,7 +77,7 @@ export default function HomeLayout () {
                     <button
                         aria-label={open ? "close sidebar" : "open sidebar"}
                         className="inline-flex"
-                        onClick={() => setOpen(v => !v)}
+                        onClick={toggleSidebar}
                     >
                         <img src={hamburgerIcon}
                             alt="menu" 
@@ -133,13 +100,6 @@ export default function HomeLayout () {
                         placeholder="LP 검색"
                         className="hidden md:block px-3 py-1 rounded border border-gray-700 bg-gray-800 text-sm text-gray-100 focus:outline-none focus:ring-1 focus:ring-pink-400"
                     />
-                    {/* <button
-                        onClick={() => navigate('/lps')}
-                        className="hidden md:flex items-center gap-1 text-sm text-gray-300 hover:text-white"
-                        aria-label="search"
-                    >
-                        <span className="material-symbols-outlined text-base">찾기</span>
-                    </button> */}
 
                     {!isLoggedIn ? (
                         <div className="flex items-center gap-3">
@@ -162,7 +122,7 @@ export default function HomeLayout () {
                     {showOverlay && !leaveOpen && (
                         <div
                             className="fixed inset-0 z-60 bg-black/40"
-                            onClick={() => setOpen(false)}
+                            onClick={closeSidebar}
                         />
                     )}
 
@@ -176,12 +136,12 @@ export default function HomeLayout () {
                             <NavLink
                                 to="/lps"
                                 className={({isActive}) => `block px-3 py-2 rounded ${isActive ? 'bg-gray-800 text-white' : 'hover:bg-gray-800'}`}
-                                onClick={() => setOpen(false)}
+                                onClick={closeSidebar}
                             >찾기</NavLink>
                             <NavLink
                                 to="/mypage"
                                 className={({isActive}) => `block px-3 py-2 rounded ${isActive ? 'bg-gray-800 text-white' : 'hover:bg-gray-800'}`}
-                                onClick={() => setOpen(false)}
+                                onClick={closeSidebar}
                             >마이페이지</NavLink>
                         </nav>
 
@@ -189,9 +149,8 @@ export default function HomeLayout () {
                             <button
                                 className="text-xs text-gray-500"
                                 onClick={() => {
-                                    // 사이드바 먼저 닫고 모달 열기
-                                    setOpen(false);
-                                    setLeaveOpen(true)
+                                    closeSidebar();
+                                    setLeaveOpen(true);
                                 }}
                             >탈퇴하기</button>
                         </div>
@@ -202,7 +161,10 @@ export default function HomeLayout () {
             
 
             {/* 메인 */}
-            <main id="app-scroll" className={`flex-1 overflow-y-auto ${mainLeftPad}`}>
+            <main
+                id="app-scroll"
+                className={`flex-1 ${showOverlay ? "overflow-hidden" : "overflow-y-auto"} ${mainLeftPad}`}
+            >
                 <div className="max-w-6xl mx-auto p-4 md:p-8">
                     <Outlet />
                 </div>
