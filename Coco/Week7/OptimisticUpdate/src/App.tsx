@@ -8,6 +8,8 @@ import { LoginPage } from './pages/LoginPage';
 import { SignupPage } from './pages/SignupPage';
 import { MyPage } from './pages/MyPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { LpSearch } from './components/lp/LpSearch';
+
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,7 +27,8 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          
+          <Route path="/search" element={<LpSearch />} />
+
           <Route element={<MainLayout />}>
             <Route path="/" element={<MainPage />} />
             <Route

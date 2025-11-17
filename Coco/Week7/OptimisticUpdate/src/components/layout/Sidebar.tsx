@@ -74,6 +74,15 @@ export const Sidebar = () => {
                 마이페이지
               </Link>
             </li>
+            <li>
+          <Link 
+            to="/search" 
+            className="block p-2 hover:bg-gray-100 rounded cursor-pointer"
+            onClick={() => setIsOpen(false)}
+          >
+            검색
+          </Link>
+        </li>
           </ul>
 
           {/* 탈퇴하기 버튼 */}
