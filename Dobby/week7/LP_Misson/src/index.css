@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@layer base {
+  html,
+  body,
+  #root {
+    @apply bg-black text-white;
+    min-height: 100dvh;
+  }
+}
