@@ -1,5 +1,5 @@
 import { api } from './authApi'; 
-const USE_MOCK = false; 
+const USE_MOCK = true; 
 
 export const profileApi = {
   updateProfile: async (formData: FormData) => {

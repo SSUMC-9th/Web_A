@@ -42,7 +42,7 @@ export const LpSearch = () => {
             <p>현재 입력: "{searchQuery}"</p>
             <p>검색 쿼리: "{debouncedQuery}"</p>
             <p className="text-xs text-blue-600">
-              💡 타이핑을 멈추면 300ms 후 검색이 시작됩니다.
+              디바운싱 300
             </p>
           </div>
         )}

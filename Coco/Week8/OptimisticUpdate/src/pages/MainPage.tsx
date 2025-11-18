@@ -15,6 +15,8 @@ export const MainPage = () => {
     }
   });
 
+  console.log(data);
+
   return (
     <div className="p-6">
       {/* 정렬 버튼 */}
@@ -37,12 +39,11 @@ export const MainPage = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {isLoading ? (
           Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
         ) : (
           <>
-            {/* ✅ 안전한 체크 추가 */}
             {data?.pages?.map((page) =>
               page?.items?.map((lp) => <LpCard key={lp.id} lp={lp} />)
             )}
@@ -52,7 +53,7 @@ export const MainPage = () => {
           </>
         )}
       </div>
-      
+       */}
       {/* 데이터가 없을 때 */}
       {!isLoading && (!data?.pages || data.pages.length === 0 || data.pages[0]?.items?.length === 0) && (
         <div className="text-center py-12 text-gray-500">
