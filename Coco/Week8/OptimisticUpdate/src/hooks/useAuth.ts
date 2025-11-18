@@ -7,16 +7,14 @@ interface User {
   email: string;
   nickname: string;
   bio?: string;
-  profileImage?: string;
 }
 
 interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
-  login: (user: User, token: string) => void;
-  logout: () => void;
-  updateUser: (user: Partial<User>) => void;
+  setAuth: (user: User, token: string) => void;
+  clearAuth: () => void;
 }
 
 export const useAuth = create<AuthState>()(
@@ -25,20 +23,10 @@ export const useAuth = create<AuthState>()(
       user: null,
       token: null,
       isAuthenticated: false,
-      
-      login: (user: User, token: string) => {
-        set({ user, token, isAuthenticated: true });
-      },
-      
-      logout: () => {
-        set({ user: null, token: null, isAuthenticated: false });
-      },
-
-      updateUser: (updatedUser: Partial<User>) => {
-        set((state) => ({
-          user: state.user ? { ...state.user, ...updatedUser } : null,
-        }));
-      },
+      setAuth: (user, token) => 
+        set({ user, token, isAuthenticated: true }),
+      clearAuth: () => 
+        set({ user: null, token: null, isAuthenticated: false }),
     }),
     {
       name: 'auth-storage',

@@ -1,9 +1,5 @@
-import axios from 'axios';
+import { api } from './authApi'; 
 import type { Lp, Comment, PaginatedResponse, SortOrder } from '../types/lp.types';
-
-const api = axios.create({
-  baseURL: '/api',
-});
 
 const mockLps: Lp[] = Array.from({ length: 20 }, (_, i) => ({
   id: `${i + 1}`,
@@ -24,7 +20,7 @@ const mockComments: Comment[] = Array.from({ length: 15 }, (_, i) => ({
   createdAt: new Date(Date.now() - i * 3600000).toISOString(),
 }));
 
-const USE_MOCK = true; 
+const USE_MOCK = false; 
 
 export const lpApi = {
   getLps: async (page: number, sort: SortOrder): Promise<PaginatedResponse<Lp>> => {
@@ -48,11 +44,18 @@ export const lpApi = {
       };
     }
 
-    // API 호출
     const { data } = await api.get('/v1/lps', {
-      params: { page, sort }
+      params: { 
+        take: 8,
+        order__createdAt: sort === 'latest' ? 'DESC' : 'ASC'
+      }
     });
-    return data;
+    
+    return {
+      items: data.data || [],
+      hasMore: data.cursor?.after !== null,
+      nextCursor: data.cursor?.after,
+    };
   },
 
   getLpById: async (id: string): Promise<Lp> => {
@@ -64,7 +67,7 @@ export const lpApi = {
     }
 
     const { data } = await api.get(`/v1/lps/${id}`);
-    return data;
+    return data.data || data;
   },
 
   getComments: async (
@@ -93,10 +96,67 @@ export const lpApi = {
     }
 
     const { data } = await api.get(`/v1/lps/${lpId}/comments`, {
-      params: { page, order }
+      params: { 
+        take: 5,
+        order__createdAt: order === 'latest' ? 'DESC' : 'ASC'
+      }
     });
-    return data;
-  }, createLp: async (formData: FormData) => {
+    
+    return {
+      items: data.data || [],
+      hasMore: data.cursor?.after !== null,
+      nextCursor: data.cursor?.after,
+    };
+  },
+
+  searchLps: async (
+    query: string, 
+    cursor?: string
+  ): Promise<PaginatedResponse<Lp>> => {
+    if (USE_MOCK) {
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      const itemsPerPage = 8;
+      
+      const filteredLps = mockLps.filter(lp => 
+        lp.title.toLowerCase().includes(query.toLowerCase()) ||
+        lp.content.toLowerCase().includes(query.toLowerCase())
+      );
+      
+      const cursorIndex = cursor 
+        ? filteredLps.findIndex(lp => lp.id === cursor) + 1 
+        : 0;
+      
+      const items = filteredLps.slice(cursorIndex, cursorIndex + itemsPerPage);
+      const nextCursor = items.length === itemsPerPage 
+        ? items[items.length - 1].id 
+        : undefined;
+      
+      return {
+        items,
+        hasMore: cursorIndex + itemsPerPage < filteredLps.length,
+        nextCursor,
+      };
+    }
+
+    const { data } = await api.get('/v1/lps', {
+      params: { take: 100 }
+    });
+    
+    const allItems = data.data || [];
+    const filteredItems = allItems.filter((lp: Lp) =>
+      lp.title.toLowerCase().includes(query.toLowerCase()) ||
+      lp.content.toLowerCase().includes(query.toLowerCase())
+    );
+    
+    return {
+      items: filteredItems,
+      hasMore: false,
+      nextCursor: undefined,
+    };
+  },
+
+  createLp: async (formData: FormData) => {
     if (USE_MOCK) {
       await new Promise(resolve => setTimeout(resolve, 500));
       return {
@@ -115,7 +175,7 @@ export const lpApi = {
         'Content-Type': 'multipart/form-data',
       },
     });
-    return data;
+    return data.data || data;
   },
 
   updateLp: async (id: string, formData: FormData) => {
@@ -166,7 +226,7 @@ export const lpApi = {
     }
 
     const { data } = await api.post(`/v1/lps/${lpId}/comments`, { content });
-    return data;
+    return data.data || data;
   },
 
   updateComment: async (commentId: string, content: string) => {
@@ -175,7 +235,7 @@ export const lpApi = {
       return { success: true };
     }
 
-    const { data } = await api.patch(`/v1/comments/${commentId}`, { content });
+    const { data } = await api.patch(`/v1/lps/comments/${commentId}`, { content });
     return data;
   },
 
@@ -185,7 +245,7 @@ export const lpApi = {
       return { success: true };
     }
 
-    const { data } = await api.delete(`/v1/comments/${commentId}`);
+    const { data } = await api.delete(`/v1/lps/comments/${commentId}`);
     return data;
   },
 };

@@ -1,7 +1,7 @@
 // components/lp/LpSearch.tsx
 import { useState } from 'react';
 import { useDebounce } from '../../hooks/useDebounce';
-import { useLpSearch } from '../../hooks/useLpSearch';
+import { useLpSearch } from '../../../../../Week8/OptimisticUpdate/src/hooks/useLpSearch';
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll';
 import { LpCard } from './LpCard';
 import { SkeletonCard } from '../common/SkeletonCard';

@@ -1,4 +1,3 @@
-// pages/MainPage.tsx
 import { useState } from 'react';
 import { useLpList } from '../hooks/useLpQueries';
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
@@ -9,6 +8,7 @@ import type { SortOrder } from '../types/lp.types';
 export const MainPage = () => {
   const [sort, setSort] = useState<SortOrder>('latest');
   const { data, fetchNextPage, hasNextPage, isLoading, isFetchingNextPage } = useLpList(sort);
+  
   const { ref } = useInfiniteScroll(() => {
     if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
@@ -42,8 +42,9 @@ export const MainPage = () => {
           Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
         ) : (
           <>
+            {/* ✅ 안전한 체크 추가 */}
             {data?.pages?.map((page) =>
-              page.items.map((lp) => <LpCard key={lp.id} lp={lp} />)
+              page?.items?.map((lp) => <LpCard key={lp.id} lp={lp} />)
             )}
             {isFetchingNextPage &&
               Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={`loading-${i}`} />)
@@ -51,12 +52,13 @@ export const MainPage = () => {
           </>
         )}
       </div>
-      {!isLoading && (!data?.pages || data.pages.length === 0) && (
+      
+      {/* 데이터가 없을 때 */}
+      {!isLoading && (!data?.pages || data.pages.length === 0 || data.pages[0]?.items?.length === 0) && (
         <div className="text-center py-12 text-gray-500">
           게시글이 없습니다.
         </div>
       )}
-
 
       <div ref={ref} className="h-10" />
     </div>

@@ -1,11 +1,5 @@
-// api/profileApi.ts
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: '/api',
-});
-
-const USE_MOCK = true;
+import { api } from './authApi'; 
+const USE_MOCK = false; 
 
 export const profileApi = {
   updateProfile: async (formData: FormData) => {
@@ -19,11 +13,11 @@ export const profileApi = {
       };
     }
 
-    const { data } = await api.patch('/profile', formData, {
+    const { data } = await api.patch('/v1/profile', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
-    return data;
+    return data.data || data;
   },
 };

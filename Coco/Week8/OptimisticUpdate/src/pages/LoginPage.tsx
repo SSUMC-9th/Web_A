@@ -1,33 +1,12 @@
 // pages/LoginPage.tsx
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-
-const useLogin = () => {
-  const [isPending, setIsPending] = useState(false);
-
-  const mutate = (params: { email: string; password: string }) => {
-    setIsPending(true);
-    (async () => {
-      try {
-        // TODO: replace this with a real API call (fetch/axios)
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        // handle success (e.g. store token, redirect, etc.)
-        console.log('Logged in:', params.email);
-      } catch (err) {
-        console.error('Login failed', err);
-      } finally {
-        setIsPending(false);
-      }
-    })();
-  };
-
-  return { mutate, isPending };
-};
+import { useLogin } from '../hooks/useAuthMutations';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+
   const { mutate: login, isPending } = useLogin();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -39,7 +18,7 @@ export const LoginPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center">로그인</h2>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">

@@ -1,15 +1,17 @@
 // pages/SignupPage.tsx
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useSignup } from '../hooks/useAuthMutations';
 
 export const SignupPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [nickname, setNickname] = useState('');
-  const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const { mutate: signup, isPending } = useSignup();
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password !== passwordConfirm) {
@@ -17,21 +19,14 @@ export const SignupPage = () => {
       return;
     }
 
-    try {
-      // TODO: 회원가입 API 연동
-      console.log('회원가입:', { email, password, nickname });
-      alert('회원가입이 완료되었습니다.');
-      navigate('/login');
-    } catch (error) {
-      alert('회원가입에 실패했습니다.');
-    }
+    signup({ email, password, nickname });
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         <h2 className="text-2xl font-bold mb-6 text-center">회원가입</h2>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -43,6 +38,7 @@ export const SignupPage = () => {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              disabled={isPending}
             />
           </div>
 
@@ -56,6 +52,7 @@ export const SignupPage = () => {
               onChange={(e) => setNickname(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              disabled={isPending}
             />
           </div>
 
@@ -69,6 +66,7 @@ export const SignupPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              disabled={isPending}
             />
           </div>
 
@@ -82,14 +80,16 @@ export const SignupPage = () => {
               onChange={(e) => setPasswordConfirm(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              disabled={isPending}
             />
           </div>
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+            disabled={isPending}
+            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
-            회원가입
+            {isPending ? '가입 중...' : '회원가입'}
           </button>
         </form>
 
