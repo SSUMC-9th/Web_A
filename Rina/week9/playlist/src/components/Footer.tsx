@@ -1,13 +1,11 @@
-import { openModal } from "../features/modal/modalSlice";
-import { useDispatch, useSelector } from "../hooks/useCustomRedux"
-
+import { useCartstore } from "../hooks/useCartStore";
 
 export const Footer = () => {
-    const { total } = useSelector((state) => state.cart);
-    const dispatch = useDispatch();
+    const total = useCartstore((state) => state.total);
+    const openModal = useCartstore((state) => state.openModal);
 
     const handleOpenModal = () => {
-        dispatch(openModal());
+        openModal();
     }
 
     return (
