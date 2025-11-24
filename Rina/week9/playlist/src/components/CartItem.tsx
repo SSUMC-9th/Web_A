@@ -1,9 +1,9 @@
 import { useDispatch } from "../hooks/useCustomRedux";
 import type { Lp } from "../type/cart"
-import { decrease, increase } from "../slices/cartSlice";
+import { decrease, increase } from "../features/cart/cartSlice";
 
 interface CartItemProps {
-    lp: Lp;
+  lp: Lp;
 }
 
 export const CartItem = ({ lp } : CartItemProps) => {

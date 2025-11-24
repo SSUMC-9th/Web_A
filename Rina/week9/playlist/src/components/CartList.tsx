@@ -1,4 +1,3 @@
-
 import { CartItem } from "./CartItem"
 import { useSelector } from "../hooks/useCustomRedux"
 import type { RootState } from "../store/store";

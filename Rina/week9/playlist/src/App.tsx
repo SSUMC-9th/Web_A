@@ -3,6 +3,7 @@ import { Footer } from "./components/Footer";
 import { Navbar } from "./components/Navbar";
 import store from "./store/store";
 import CartList from "./components/CartList";
+import { Modal } from "./components/Modal";
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <Navbar />
       <CartList />
       <Footer />
+      <Modal />
     </ Provider>
   );
 }
