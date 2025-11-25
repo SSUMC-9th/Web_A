@@ -54,7 +54,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = async (email: string, password: string) => {
     try {
-      // 실제 로그인 API 호출
       const response = await axiosInstance.post('/auth/login', {
         email,
         password,

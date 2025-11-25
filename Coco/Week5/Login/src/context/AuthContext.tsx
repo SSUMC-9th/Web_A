@@ -22,7 +22,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<{ email: string; nickname: string } | null>(null);
 
   const login = (email: string, password: string) => {
-    // 실제로는 API 호출
     setIsAuthenticated(true);
     setUser({ email, nickname: email.split('@')[0] });
   };
