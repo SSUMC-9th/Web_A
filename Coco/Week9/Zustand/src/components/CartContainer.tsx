@@ -1,17 +1,16 @@
 import { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { calculateTotals } from '../feature/cart/cartSlice';
-import { openModal } from '../feature/modal/modalSlice';
+import { usePlaylistStore } from '../store/usePlaylistStore';
 import CartItem from './CartItem';
 import Modal from './Modal';
 
 const CartContainer = () => {
-  const dispatch = useAppDispatch();
-  const { cartItems, amount, total } = useAppSelector((state) => state.cart);
+  // Zustand store에서 필요한 상태와 액션 가져오기
+  const { cartItems, amount, total, openModal, calculateTotals } = usePlaylistStore();
 
+  // 컴포넌트 마운트 시 총액 계산
   useEffect(() => {
-    dispatch(calculateTotals());
-  }, [cartItems, dispatch]);
+    calculateTotals();
+  }, [calculateTotals]);
 
   if (cartItems.length === 0) {
     return (
@@ -31,7 +30,7 @@ const CartContainer = () => {
 
   return (
     <>
-      {/* Modal 컴포넌트 추가 */}
+      {/* Modal 컴포넌트 */}
       <Modal />
       
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 py-12 px-4">
@@ -64,9 +63,9 @@ const CartContainer = () => {
             </div>
           </div>
 
-          {/* 장바구니 비우기 버튼 - window.confirm 대신 모달 열기 */}
+          {/* 장바구니 비우기 버튼 */}
           <button
-            onClick={() => dispatch(openModal())}
+            onClick={openModal}
             className="w-full py-4 bg-gradient-to-r from-red-500 to-pink-500 hover:from-red-600 hover:to-pink-600 text-white font-bold text-lg rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
           >
             장바구니 비우기
