@@ -34,7 +34,7 @@ function MovieModal({ movie, onClose }: MovieModalProps) {
             />
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 bg-white rounded-full p-2 hover:bg-gray-100"
+              className="absolute top-4 right-4 bg-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-100 text-2xl"
             >
               ✕
             </button>
@@ -47,11 +47,11 @@ function MovieModal({ movie, onClose }: MovieModalProps) {
               <p className="text-gray-600 mb-4">{movie.original_title}</p>
             )}
 
-            <div className="flex items-center gap-4 mb-4">
+            <div className="flex items-center gap-4 mb-4 flex-wrap">
               <span className="flex items-center">
                 ⭐ {movie.vote_average.toFixed(1)}
               </span>
-              <span>📅 {movie.release_date}</span>
+              <span>📅 {movie.release_date || 'N/A'}</span>
               <span>🗳️ {movie.vote_count.toLocaleString()} votes</span>
             </div>
 

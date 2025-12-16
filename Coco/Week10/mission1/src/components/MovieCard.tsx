@@ -8,8 +8,6 @@ interface MovieCardProps {
 }
 
 function MovieCard({ movie, onClick }: MovieCardProps) {
-  console.log(`🟢 MovieCard 렌더링: ${movie.title}`); // 최적화 후 확인
-  
   return (
     <div
       onClick={() => onClick(movie)}
@@ -31,5 +29,4 @@ function MovieCard({ movie, onClick }: MovieCardProps) {
   );
 }
 
-// memo로 감싸기 - props가 변경되지 않으면 리렌더링 방지
 export default memo(MovieCard);
