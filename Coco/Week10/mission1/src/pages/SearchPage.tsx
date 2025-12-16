@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Movie, LanguageOption } from '../types/movie.types';
 import { getPopularMovies, searchMovies } from '../api/movieApi';
 import MovieSearch from '../components/MovieSearch';
