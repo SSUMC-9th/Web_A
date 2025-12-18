@@ -3,17 +3,21 @@ import { useAuth } from "../src/context/AuthContext";
 import { getMyInfo } from "../apis/auth";
 import type { ResponseMyInfoDto } from "../src/types/common";
 import { useNavigate } from "react-router-dom";
+import React from "react";
+import HamburgerIcon from "../components/icons/HamburgerIcon";
 
 interface HeaderProps {
   currentOrder: "asc" | "desc";
   onOrderChange: (order: "asc" | "desc") => void;
   onSearchClick: () => void;
+  onMenuClick: () => void;
 }
 
 const Header = ({
   currentOrder,
   onOrderChange,
   onSearchClick,
+  onMenuClick,
 }: HeaderProps) => {
   const { accessToken, logout } = useAuth();
   const navigate = useNavigate();
@@ -35,7 +39,15 @@ const Header = ({
 
   return (
     <header className="bg-gray-900 text-white h-16 flex items-center justify-between px-4 fixed top-0 left-0 right-0 z-50">
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onMenuClick}
+          className="text-white hover:text-gray-300 hover:cursor-pointer transition-colors"
+          aria-label="메뉴 열기"
+        >
+          <HamburgerIcon className="w-8 h-8" />
+        </button>
         <h1 className="text-xl font-bold">돌려돌려 LP판</h1>
       </div>
 
@@ -112,6 +124,3 @@ const Header = ({
 };
 
 export default Header;
-
-
-

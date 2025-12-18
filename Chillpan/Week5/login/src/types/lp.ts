@@ -1,4 +1,4 @@
-import type { CursorBasedResponse } from "./common.ts";
+import type { CommonResponse, CursorBasedResponse } from "./common.ts";
 
 export type Tag = {
   id: number;
@@ -25,3 +25,17 @@ export type Lp = {
 };
 
 export type ResponseLpListDto = CursorBasedResponse<Lp[]>;
+
+export type LpDetail = Lp & {
+  author: {
+    id: number;
+    name: string;
+    email: string;
+    bio: string | null;
+    avatar: string | null;
+    createdAt: string;
+    updatedAt: string;
+  };
+};
+
+export type ResponseLpDetailDto = CommonResponse<LpDetail>;
